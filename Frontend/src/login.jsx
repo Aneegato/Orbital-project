@@ -56,9 +56,9 @@ function Login() {
                         Login
                     </button>
                 </form>
-                <p>Don't Have an Account?</p>
-                <Link to="/login" className="btn btn-default border w-100 bg-light rounded-0 text-decoration-none">
-                    Signup
+                <p>Don't Have a TimeNus Account?</p>
+                <Link to="/register" className="btn btn-default border w-100 bg-light rounded-0 text-decoration-none">
+                    Register
                 </Link>
             </div>
         </div>

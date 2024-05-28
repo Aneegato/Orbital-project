@@ -16,7 +16,7 @@ function Signup() {
             await axios.post('http://localhost:5001/register', { name, email, password })
                 .then(result => {
                     console.log(result);
-                    navigate('/login');    
+                    navigate('/login');    y
                 });
         } catch (err) {
             console.log(err);
@@ -30,7 +30,7 @@ function Signup() {
     return (
         <div className="d-flex justify-content-center align-items-center bg-secondary vh-100">
             <div className="bg-white p-3 rounded w-25">
-                <h1>SIGN UP</h1>
+                <h1>REGISTER</h1>
                 <form onSubmit={handleSubmit}>
                     <div className="form-control rounded-0">
                         <input 

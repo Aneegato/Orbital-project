@@ -33,6 +33,7 @@ mongoose.connect(process.env.DB_URI, dbOptions)
 app.post("/login", (req, res) => {
     const { email, password } = req.body;
     console.log(`Login attempt with email: ${email}`); // Log email
+
     EmployeeModel.findOne({ email: email })
         .then(user => {
             if (user) {
@@ -41,6 +42,7 @@ app.post("/login", (req, res) => {
                     if (err) {
                         res.status(500).json({ error: err.message });
                     } else if (isMatch) {
+                        console.log("Password matched"); // Log password match
                         res.json("Success");
                     } else {
                         console.log("Password incorrect"); // Log incorrect password
@@ -60,14 +62,22 @@ app.post("/login", (req, res) => {
 
 // Register endpoint
 app.post('/register', async (req, res) => {
+    const { name, email, password } = req.body;
+
     try {
-        const hashedPassword = await bcrypt.hash(req.body.password, 10);
-        const employee = await EmployeeModel.create({ ...req.body, password: hashedPassword });
-        res.status(201).json(employee);
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const employee = new EmployeeModel({
+            name,
+            email,
+            password: hashedPassword,
+        });
+        await employee.save();
+        res.status(201).json('User registered successfully');
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
+
 
 // Start the server
 const port = process.env.PORT || 5001;

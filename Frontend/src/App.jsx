@@ -7,17 +7,14 @@ import Navbar from './components/Navbar';
 
 function App() {
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-red-500"> Hello world!</h1>
-      <Navbar/>
-      <BrowserRouter>
-        <Routes>
-          <Route path='/register' element={<Signup />} />
-          <Route path='/login' element={<Login />} />
-          <Route path='/home' element={<Home />} />
-        </Routes>
-      </BrowserRouter>
-    </div>
+    <BrowserRouter>
+      <Navbar />
+      <Routes>
+        <Route path='/register' element={<Signup />} />
+        <Route path='/login' element={<Login />} />
+        <Route path='/home' element={<Home />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

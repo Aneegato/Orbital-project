@@ -3,54 +3,49 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
-const EmployeeModel = require('./models/employee'); // Ensure this path is correct
+const EmployeeModel = require('./models/Employee');
+const EventModel = require('./models/Event');
 
 const app = express();
 
-// Middleware to parse JSON and URL-encoded data
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// CORS configuration
 const corsOptions = {
-    origin: '*', // In a production environment, specify allowed origins
+    origin: '*',
     credentials: true,
     optionSuccessStatus: 200
 };
 app.use(cors(corsOptions));
 
-// MongoDB connection
-const dbOptions = {
+mongoose.connect(process.env.DB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
-};
-
-mongoose.connect(process.env.DB_URI, dbOptions)
+})
     .then(() => console.log('DB Connected!'))
     .catch(err => console.error('DB Connection Error:', err));
 
-// Define the /login route
 app.post("/login", (req, res) => {
     const { email, password } = req.body;
-    console.log(`Login attempt with email: ${email}`); // Log email
+    console.log(`Login attempt with email: ${email}`);
 
     EmployeeModel.findOne({ email: email })
         .then(user => {
             if (user) {
-                console.log(`User found: ${user}`); // Log user details
+                console.log(`User found: ${user}`);
                 bcrypt.compare(password, user.password, (err, isMatch) => {
                     if (err) {
                         res.status(500).json({ error: err.message });
                     } else if (isMatch) {
-                        console.log("Password matched"); // Log password match
-                        res.json("Success");
+                        console.log("Password matched");
+                        res.json({ message: "Success", userId: user._id });
                     } else {
-                        console.log("Password incorrect"); // Log incorrect password
+                        console.log("Password incorrect");
                         res.status(401).json("The password is incorrect");
                     }
                 });
             } else {
-                console.log("Account does not exist"); // Log non-existent account
+                console.log("Account does not exist");
                 res.status(404).json("The account does not exist");
             }
         })
@@ -60,7 +55,6 @@ app.post("/login", (req, res) => {
         });
 });
 
-// Register endpoint
 app.post('/register', async (req, res) => {
     const { name, email, password } = req.body;
 
@@ -78,8 +72,54 @@ app.post('/register', async (req, res) => {
     }
 });
 
+app.get('/events', async (req, res) => {
+    const { userId } = req.query;
+    try {
+        const event = await EventModel.find({ userId });
+        res.json(event);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
-// Start the server
+app.post('/events', async (req, res) => {
+    try {
+        const event = new EventModel(req.body);
+        await event.save();
+        res.status(201).send(event);
+    } catch (error) {
+        console.error('Error saving event:', error);  // Log the error details
+        res.status(500).send({ error: 'Internal Server Error' });
+    }
+});
+
+
+app.put('/events/:id', async (req, res) => {
+    try {
+        const event = await EventModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        if (!event) {
+            return res.status(404).send();
+        }
+        res.send(event);
+    } catch (error) {
+        console.error('Error updating event:', error);
+        res.status(500).send({ error: 'Internal Server Error' });
+    }
+});
+
+app.delete('/events/:id', async (req, res) => {
+    try {
+        const event = await EventModel.findByIdAndDelete(req.params.id);
+        if (!event) {
+            return res.status(404).send();
+        }
+        res.send(event);
+    } catch (error) {
+        console.error('Error deleting event:', error);
+        res.status(500).send({ error: 'Internal Server Error' });
+    }
+});
+
 const port = process.env.PORT || 5001;
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

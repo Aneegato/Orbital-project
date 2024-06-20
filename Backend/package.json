@@ -10,6 +10,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@syncfusion/ej2-data": "^26.1.35",
+    "@syncfusion/ej2-react-schedule": "^26.1.35",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",

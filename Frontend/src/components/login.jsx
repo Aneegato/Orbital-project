@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
-import { useNavigate } from "react-router-dom";
 
 function Login() {
     const [email, setEmail] = useState("");
@@ -14,8 +13,8 @@ function Login() {
         try {
             const result = await axios.post('http://localhost:5001/login', { email, password });
             console.log(result);
-            if (result.data === "Success") {
-                navigate('/home');
+            if (result.data.message === "Success") {
+                navigate('/home', { state: { userId: result.data.userId } });
             } else {
                 setErrorMessage(result.data);
             }

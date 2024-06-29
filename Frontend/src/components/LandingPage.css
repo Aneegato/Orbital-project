@@ -1,0 +1,51 @@
+.landing-page {
+    display: flex;
+    height: 100vh; /* Adjust as needed */
+  }
+  
+  .image-container {
+    flex: 3; /* Takes up half of the available space */
+    display: flex;
+    justify-content: center; /* Aligns content to the right */
+    align-items: center; /* Centers items vertically */
+    padding-right: 2rem; /* Example padding towards the right */
+  }
+  
+  .cover-image {
+    width: 100%; /* Ensure the image takes full width of its container */
+    height: 100%; /* Ensure the image takes full height of its container */
+    object-fit: contain; /* Ensure the image covers the container */
+  }
+  
+  .text-container {
+    flex: 1; /* Takes up the other half of the available space */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centers content vertically */
+    align-items: flex-start; /* Aligns items to the start (left) */
+    padding: 1rem; /* Example padding */
+    max-width: 50%; /* Limit the width to 50% of its container */
+  }
+  
+  .text-container h2 {
+    font-size: 4rem; /* Adjust font size */
+    color: #333; /* Example text color */
+  }
+  
+  .text-container p {
+    font-size: 1.5rem; /* Adjust font size */
+    color: #666; /* Example text color */
+  }
+  
+  .italic {
+    font-style: italic;
+  }
+
+  .blue-text {
+    color: blue;
+  }
+  
+  .orange-text {
+    color: orange;
+  }
+  

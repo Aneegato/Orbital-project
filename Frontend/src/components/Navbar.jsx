@@ -13,12 +13,15 @@ function Navbar() {
   return (
     <div className="navbar">
       <div className="navbar-brand">
-        <h2>timeNUS</h2>
+        <h2>
+          <span className="text-blue">time</span>
+          <span className="text-orange">NUS</span>
+          </h2>
       </div>
       <div className="navbar-actions">
-        <BiUserCircle className="h-10 w-10 cursor-pointer" />
+        <BiUserCircle size={40} className="cursor-pointer" />
         <button onClick={handleSignupClick} className="signup-button">
-          Signup
+          Register
         </button>
       </div>
     </div>

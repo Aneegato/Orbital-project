@@ -9,6 +9,8 @@ export default defineConfig({
     alias: {
       '~': path.resolve(__dirname, 'node_modules')
     }
+  },
+  build: {
+    outDir: 'dist'
   }
 });
-

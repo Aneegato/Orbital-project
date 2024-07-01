@@ -8,6 +8,8 @@ import {
     Month,
     Agenda,
     Inject,
+    DragAndDrop,
+    Resize,
 } from '@syncfusion/ej2-react-schedule';
 import { registerLicense } from '@syncfusion/ej2-base';
 import axios from 'axios';
@@ -96,15 +98,14 @@ function Home() {
     return (
         <ErrorBoundary>
             <ScheduleComponent
-                currentView="Month"
+                currentView="WorkWeek"
                 eventSettings={{ dataSource: events }}
                 actionBegin={handleActionBegin}
             >
-                <Inject services={[Day, Week, WorkWeek, Month, Agenda]} />
+                <Inject services={[Day, Week, WorkWeek, Month, Agenda, DragAndDrop, Resize]} />
             </ScheduleComponent>
         </ErrorBoundary>
     );
 }
 
 export default Home;
-

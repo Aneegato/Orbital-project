@@ -1,39 +1,48 @@
 .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    background-color: #f8f9fa;
-  }
-  
-  .navbar-brand h2 {
-    margin: 0;
-  }
-  
-  .text-blue{
-    color:blue;
-  }
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #f8f9fa;
+}
 
-  .text-orange{
-    color: orange;
-  }
-  
-  .navbar-actions {
-    display: flex;
-    align-items: center;
-  }
-  
-  .signup-button {
-    margin-left: 1rem;
-    padding: 0.5rem 1rem;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .signup-button:hover {
-    background-color: #0056b3;
-  }
-  
+.navbar-brand h2 {
+  margin: 0;
+}
+
+.text-blue {
+  color: blue;
+}
+
+.text-orange {
+  color: orange;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+}
+
+.signup-button, .logout-button {
+  margin-left: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.signup-button:hover, .logout-button:hover {
+  background-color: #0056b3;
+}
+
+.welcome-message {
+  margin-right: 1rem;
+  font-size: 1rem;
+  color: #000;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}

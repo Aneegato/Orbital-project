@@ -1,23 +1,22 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import axios from 'axios'
+import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 
-function Signup() {
+function Signup({ onSignup }) {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:5001/register', { name, email, password })
-                .then(result => {
-                    console.log(result);
-                    navigate('/login');    y
-                });
+            const result = await axios.post('http://localhost:5001/register', { name, email, password });
+            console.log(result);
+            onSignup(name);
+            navigate('/home');
         } catch (err) {
             console.log(err);
         }
@@ -25,7 +24,6 @@ function Signup() {
         console.log("Email:", email);
         console.log("Password:", password);
     };
-
 
     return (
         <div className="d-flex justify-content-center align-items-center bg-secondary vh-100">
@@ -75,4 +73,3 @@ function Signup() {
 }
 
 export default Signup;
-

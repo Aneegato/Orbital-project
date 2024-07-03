@@ -58,42 +58,51 @@ function Home() {
         }
     };
 
-   const handleActionBegin = async (args) => {
-    if (args.requestType === 'eventCreate') {
-        const eventData = args.addedRecords[0];
-        const formattedData = {
-            ...eventData,
-            StartTime: new Date(eventData.StartTime),
-            EndTime: new Date(eventData.EndTime),
-            userId
-        };
-        try {
-            console.log('Sending event data:', formattedData);  // Log the data being sent
-            await axios.post(`http://localhost:5001/events`, formattedData);
-            loadEvents();
-        } catch (error) {
-            console.error('Error creating event:', error);
+    const handleActionBegin = async (args) => {
+        if (args.requestType === 'eventCreate') {
+            const eventData = args.addedRecords[0];
+            const formattedData = {
+                userId, // Ensure userId is passed
+                Subject: eventData.Subject,
+                Description: eventData.Description,
+                StartTime: eventData.StartTime,
+                EndTime: eventData.EndTime,
+                IsAllDay: eventData.IsAllDay,
+                Location: eventData.Location
+            };
+            try {
+                console.log('Sending event data:', formattedData);  // Log the data being sent
+                await axios.post('http://localhost:5001/events', formattedData);
+                loadEvents();
+            } catch (error) {
+                console.error('Error creating event:', error);
+            }
+        } else if (args.requestType === 'eventChange') {
+            const eventData = args.changedRecords[0];
+            const formattedData = {
+                Subject: eventData.Subject,
+                Description: eventData.Description,
+                StartTime: eventData.StartTime,
+                EndTime: eventData.EndTime,
+                IsAllDay: eventData.IsAllDay,
+                Location: eventData.Location
+            };
+            try {
+                await axios.put(`http://localhost:5001/events/${eventData.Id}`, formattedData);
+                loadEvents();
+            } catch (error) {
+                console.error('Error updating event:', error);
+            }
+        } else if (args.requestType === 'eventRemove') {
+            const eventData = args.deletedRecords[0];
+            try {
+                await axios.delete(`http://localhost:5001/events/${eventData.Id}`);
+                loadEvents();
+            } catch (error) {
+                console.error('Error deleting event:', error);
+            }
         }
-    } else if (args.requestType === 'eventChange') {
-        const eventData = args.changedRecords[0];
-        try {
-            await axios.put(`http://localhost:5001/events/${eventData.Id}`, eventData);
-            loadEvents();
-        } catch (error) {
-            console.error('Error updating event:', error);
-        }
-    } else if (args.requestType === 'eventRemove') {
-        const eventData = args.deletedRecords[0];
-        try {
-            await axios.delete(`http://localhost:5001/events/${eventData.Id}`);
-            loadEvents();
-        } catch (error) {
-            console.error('Error deleting event:', error);
-        }
-    }
-};
-
-    
+    };
 
     return (
         <ErrorBoundary>

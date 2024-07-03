@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
 
-function Login() {
+function Login({ onLogin }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
@@ -14,7 +14,8 @@ function Login() {
             const result = await axios.post('http://localhost:5001/login', { email, password });
             console.log(result);
             if (result.data.message === "Success") {
-                navigate('/home', { state: { userId: result.data.userId } });
+                onLogin(result.data.name); // Pass the name to onLogin
+                navigate('/home', { state: { userId: result.data.userId } }); // Pass userId via state
             } else {
                 setErrorMessage(result.data);
             }
@@ -66,4 +67,3 @@ function Login() {
 }
 
 export default Login;
-

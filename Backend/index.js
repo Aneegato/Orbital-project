@@ -38,7 +38,7 @@ app.post("/login", (req, res) => {
                         res.status(500).json({ error: err.message });
                     } else if (isMatch) {
                         console.log("Password matched");
-                        res.json({ message: "Success", userId: user._id });
+                        res.json({ message: "Success", name: user.name, userId: user._id }); // Include the user's name in the response
                     } else {
                         console.log("Password incorrect");
                         res.status(401).json("The password is incorrect");
@@ -54,6 +54,7 @@ app.post("/login", (req, res) => {
             res.status(500).json({ error: err.message });
         });
 });
+
 
 app.post('/register', async (req, res) => {
     const { name, email, password } = req.body;

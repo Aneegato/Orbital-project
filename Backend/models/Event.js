@@ -7,7 +7,7 @@ const EventSchema = new mongoose.Schema({
     IsAllDay: { type: Boolean, required: true },
     Location: { type: String },
     Description: { type: String },
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'Employee', required: true }
 });
 
 const EventModel = mongoose.model('Event', EventSchema);

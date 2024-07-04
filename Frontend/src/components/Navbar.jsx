@@ -31,14 +31,16 @@ function Navbar({ isLoggedIn, handleLogout, userName }) {
         {isLoggedIn ? (
           <>
             <span className="welcome-message">Welcome, {userName}!</span>
-            <button onClick={handleLogoutClick} className="btn btn-primary rounded-0 logout-button">
+            <button onClick={handleLogoutClick} className="btn btn-danger">
               Logout
             </button>
           </>
         ) : (
           <>
-            <BiUserCircle size={40} className="cursor-pointer" onClick={handleLoginClick} />
-            <button onClick={handleSignupClick} className="signup-button">
+            <button onClick={handleLoginClick} className="btn btn-primary" style={{ marginRight: '10px' }}>
+              Login
+            </button>
+            <button onClick={handleSignupClick} className="btn btn-success">
               Register
             </button>
           </>

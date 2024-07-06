@@ -19,6 +19,10 @@ function Navbar({ isLoggedIn, handleLogout, userName }) {
     navigate('/'); // Navigate to the landing page
   };
 
+  const handleManageCalendarsClick = () => {
+    navigate('/manage-calendars');
+  };
+
   return (
     <div className="navbar">
       <div className="navbar-brand">
@@ -31,6 +35,9 @@ function Navbar({ isLoggedIn, handleLogout, userName }) {
         {isLoggedIn ? (
           <>
             <span className="welcome-message">Welcome, {userName}!</span>
+            <button onClick={handleManageCalendarsClick} className="btn btn-info" style={{ marginRight: '10px' }}>
+              Manage Calendars
+            </button>
             <button onClick={handleLogoutClick} className="btn btn-danger">
               Logout
             </button>

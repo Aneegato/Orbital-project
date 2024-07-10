@@ -71,7 +71,9 @@ router.get('/:calendarId/events', async (req, res) => {
     const { calendarId } = req.params;
     try {
         const events = await EventModel.find({ calendarId: new mongoose.Types.ObjectId(calendarId) });
+        console.log('Fetched events:', events); // Log fetched events
         if (!events.length) {
+            console.log('No events found for calendarId:', calendarId);
             return res.status(404).send({ error: 'No events found for this calendar' });
         }
         res.json(events);
@@ -80,6 +82,7 @@ router.get('/:calendarId/events', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
 
 // Update Calendar Route
 router.put('/:id', async (req, res) => {

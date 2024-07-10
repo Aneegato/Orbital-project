@@ -39,18 +39,26 @@ router.get('/', validateObjectId, async (req, res) => {
 
 // Create Event Route
 router.post('/', async (req, res) => {
+    const { Subject, StartTime, EndTime, IsAllDay, Location, Description, userId, calendarId } = req.body;
+    if (!mongoose.Types.ObjectId.isValid(calendarId)) {
+        return res.status(400).send({ error: 'Invalid calendar ID' });
+    }
     try {
-        const event = new EventModel(req.body);
+        const event = new EventModel({ Subject, StartTime, EndTime, IsAllDay, Location, Description, userId, calendarId });
         await event.save();
         res.status(201).send(event);
     } catch (error) {
-        console.error('Error saving event:', error);
+        console.error('Error creating event:', error);
         res.status(500).send({ error: 'Internal Server Error' });
     }
 });
 
 // Update Event Route
 router.put('/:id', async (req, res) => {
+    const { calendarId } = req.body;
+    if (calendarId && !mongoose.Types.ObjectId.isValid(calendarId)) {
+        return res.status(400).send({ error: 'Invalid calendar ID' });
+    }
     try {
         const event = await EventModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!event) {

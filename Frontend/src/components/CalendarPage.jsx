@@ -13,7 +13,7 @@ import {
     Resize,
 } from '@syncfusion/ej2-react-schedule';
 import { registerLicense } from '@syncfusion/ej2-base';
-import ErrorBoundary from './ErrorBoundary'; // Import the ErrorBoundary component
+import ErrorBoundary from './ErrorBoundary';
 import './scheduler.css';
 
 // Syncfusion license key
@@ -56,12 +56,31 @@ const CalendarPage = ({ userId }) => {
             });
     }, [calendarId]);
 
+    const loadEvents = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5001/calendars/${calendarId}/events`);
+            console.log('Fetched events:', response.data); // Log fetched events
+            setEvents(response.data.map(event => ({
+                Id: event._id,
+                Subject: event.Subject,
+                StartTime: new Date(event.StartTime),
+                EndTime: new Date(event.EndTime),
+                IsAllDay: event.IsAllDay,
+                Location: event.Location,
+                Description: event.Description
+            })));
+        } catch (error) {
+            console.error('Error loading events:', error);
+        }
+    };
+    
+
     const handleActionBegin = async (args) => {
         if (args.requestType === 'eventCreate') {
             const eventData = args.addedRecords[0];
             const formattedData = {
                 userId,
-                calendarId,
+                calendarId, // Ensure calendarId is included
                 Subject: eventData.Subject,
                 Description: eventData.Description,
                 StartTime: eventData.StartTime,
@@ -87,6 +106,7 @@ const CalendarPage = ({ userId }) => {
                 Location: eventData.Location
             };
             try {
+                console.log(`Updating event with ID: ${eventData.Id}`);
                 await axios.put(`http://localhost:5001/events/${eventData.Id}`, formattedData);
                 loadEvents();
             } catch (error) {
@@ -95,6 +115,7 @@ const CalendarPage = ({ userId }) => {
         } else if (args.requestType === 'eventRemove') {
             const eventData = args.deletedRecords[0];
             try {
+                console.log(`Deleting event with ID: ${eventData.Id}`);
                 await axios.delete(`http://localhost:5001/events/${eventData.Id}`);
                 loadEvents();
             } catch (error) {
@@ -102,23 +123,7 @@ const CalendarPage = ({ userId }) => {
             }
         }
     };
-
-    const loadEvents = async () => {
-        try {
-            const response = await axios.get(`http://localhost:5001/calendars/${calendarId}/events`);
-            setEvents(response.data.map(event => ({
-                Id: event._id,
-                Subject: event.Subject,
-                StartTime: new Date(event.StartTime),
-                EndTime: new Date(event.EndTime),
-                IsAllDay: event.IsAllDay,
-                Location: event.Location,
-                Description: event.Description
-            })));
-        } catch (error) {
-            console.error('Error loading events:', error);
-        }
-    };
+    
 
     if (!calendar) {
         return <div>Loading...</div>;
@@ -141,4 +146,6 @@ const CalendarPage = ({ userId }) => {
 };
 
 export default CalendarPage;
+
+
 

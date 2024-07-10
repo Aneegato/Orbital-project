@@ -72,7 +72,7 @@ function Home() {
             };
             try {
                 console.log('Sending event data:', formattedData);  // Log the data being sent
-                await axios.post('http://localhost:5001/events', formattedData);
+                await axios.post('http://localhost:5001/events', formattedData); // Removed 'auth'
                 loadEvents();
             } catch (error) {
                 console.error('Error creating event:', error);
@@ -88,7 +88,7 @@ function Home() {
                 Location: eventData.Location
             };
             try {
-                await axios.put(`http://localhost:5001/events/${eventData.Id}`, formattedData);
+                await axios.put(`http://localhost:5001/events/${eventData.Id}`, formattedData); // Removed 'auth'
                 loadEvents();
             } catch (error) {
                 console.error('Error updating event:', error);
@@ -96,7 +96,7 @@ function Home() {
         } else if (args.requestType === 'eventRemove') {
             const eventData = args.deletedRecords[0];
             try {
-                await axios.delete(`http://localhost:5001/events/${eventData.Id}`);
+                await axios.delete(`http://localhost:5001/events/${eventData.Id}`); // Removed 'auth'
                 loadEvents();
             } catch (error) {
                 console.error('Error deleting event:', error);

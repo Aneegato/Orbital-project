@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
 
-function Login({ onLogin }) {
+const Login = ({ onLogin }) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
@@ -11,13 +11,16 @@ function Login({ onLogin }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const result = await axios.post('http://localhost:5001/login', { email, password });
-            console.log(result);
-            if (result.data.message === "Success") {
-                onLogin(result.data.name); // Pass the name to onLogin
-                navigate('/home', { state: { userId: result.data.userId } }); // Pass userId via state
+            const response = await axios.post('http://localhost:5001/auth/login', { email, password });
+            console.log("Login response:", response.data);
+
+            const{name, userId} = response.data;
+
+            if (name && userId) {
+                onLogin(name, userId); // Pass the name to onLogin
+                navigate('/home', { state: { userId: response.data.userId } }); // Pass userId via state
             } else {
-                setErrorMessage(result.data);
+                setErrorMessage(response.data);
             }
         } catch (error) {
             console.error('Error logging in:', error);

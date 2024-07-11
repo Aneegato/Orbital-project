@@ -1,32 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BiUserCircle } from "react-icons/bi";
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import './Navbar.css';
+import axios from 'axios';
 
-function Navbar({ isLoggedIn, handleLogout, userName, userId }) {
+function Navbar({ isLoggedIn, handleLogout, userName }) {
   const navigate = useNavigate();
-  const [sharedCalendars, setSharedCalendars] = useState([]);
-  const [selectedSharedCalendar, setSelectedSharedCalendar] = useState('');
+  const [calendars, setCalendars] = useState([]);
 
   useEffect(() => {
-    if (isLoggedIn && userId) {
-      fetchSharedCalendars();
-    }
-  }, [isLoggedIn, userId]);
-
-  const fetchSharedCalendars = async () => {
-    try {
-      const response = await axios.get(`http://localhost:5001/calendars/user-calendars/${userId}`);
-      const shared = response.data.filter(calendar => calendar.owner._id !== userId);
-      setSharedCalendars(shared);
-      if (shared.length > 0) {
-        setSelectedSharedCalendar(shared[0]._id); // Set the first shared calendar as default
+    const fetchCalendars = async () => {
+      try {
+        const response = await axios.get('http://localhost:5001/calendars');
+        setCalendars(response.data);
+      } catch (error) {
+        console.error('Error fetching calendars:', error);
       }
-    } catch (error) {
-      console.error('Error fetching shared calendars:', error);
+    };
+
+    if (isLoggedIn) {
+      fetchCalendars();
     }
-  };
+  }, [isLoggedIn]);
 
   const handleSignupClick = () => {
     navigate('/register');
@@ -45,14 +40,13 @@ function Navbar({ isLoggedIn, handleLogout, userName, userId }) {
     navigate('/manage-calendars');
   };
 
-  const handleSharedCalendarChange = (event) => {
-    setSelectedSharedCalendar(event.target.value);
-    navigate(`/calendar/${event.target.value}`); // Navigate to the selected shared calendar
+  const handleLogoClick = () => {
+    navigate('/');
   };
 
   return (
     <div className="navbar">
-      <div className="navbar-brand">
+      <div className="navbar-brand" onClick={handleLogoClick} style={{ cursor: 'pointer' }}>
         <h2>
           <span className="text-blue">time</span>
           <span className="text-orange">NUS</span>
@@ -62,24 +56,24 @@ function Navbar({ isLoggedIn, handleLogout, userName, userId }) {
         {isLoggedIn ? (
           <>
             <span className="welcome-message">Welcome, {userName}!</span>
-            {sharedCalendars.length > 0 && (
-              <select 
-                value={selectedSharedCalendar} 
-                onChange={handleSharedCalendarChange} 
-                className="calendar-selector"
-                style={{ marginRight: '10px' }}
-              >
-                {sharedCalendars.map(calendar => (
-                  <option key={calendar._id} value={calendar._id}>
-                    {calendar.name}
-                  </option>
+            <div className="dropdown">
+              <button className="btn btn-info dropdown-toggle" type="button" id="calendarsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                Calendars
+              </button>
+              <ul className="dropdown-menu" aria-labelledby="calendarsDropdown">
+                {calendars.map(calendar => (
+                  <li key={calendar._id}>
+                    <button className="dropdown-item" onClick={() => navigate(`/calendars/${calendar._id}`)}>
+                      {calendar.name}
+                    </button>
+                  </li>
                 ))}
-              </select>
-            )}
-            <button onClick={handleManageCalendarsClick} className="btn btn-info" style={{ marginRight: '10px' }}>
+              </ul>
+            </div>
+            <button onClick={handleManageCalendarsClick} className="btn btn-info" style={{ marginLeft: '10px' }}>
               Manage Calendars
             </button>
-            <button onClick={handleLogoutClick} className="btn btn-danger">
+            <button onClick={handleLogoutClick} className="btn btn-danger" style={{ marginLeft: '10px' }}>
               Logout
             </button>
           </>
@@ -99,3 +93,4 @@ function Navbar({ isLoggedIn, handleLogout, userName, userId }) {
 }
 
 export default Navbar;
+

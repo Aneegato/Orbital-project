@@ -11,6 +11,8 @@ import {
     Inject,
     DragAndDrop,
     Resize,
+    ViewsDirective,
+    ViewDirective
 } from '@syncfusion/ej2-react-schedule';
 import { registerLicense } from '@syncfusion/ej2-base';
 import ErrorBoundary from './ErrorBoundary';
@@ -73,7 +75,6 @@ const CalendarPage = ({ userId }) => {
             console.error('Error loading events:', error);
         }
     };
-    
 
     const handleActionBegin = async (args) => {
         if (args.requestType === 'eventCreate') {
@@ -123,7 +124,6 @@ const CalendarPage = ({ userId }) => {
             }
         }
     };
-    
 
     if (!calendar) {
         return <div>Loading...</div>;
@@ -137,7 +137,15 @@ const CalendarPage = ({ userId }) => {
                     currentView="WorkWeek"
                     eventSettings={{ dataSource: events }}
                     actionBegin={handleActionBegin}
+                    allowVirtualScrolling={true} // Corrected property name
                 >
+                    <ViewsDirective>
+                        <ViewDirective option='Day' />
+                        <ViewDirective option='Week' />
+                        <ViewDirective option='WorkWeek' />
+                        <ViewDirective option='Month' />
+                        <ViewDirective option='Agenda' />
+                    </ViewsDirective>
                     <Inject services={[Day, Week, WorkWeek, Month, Agenda, DragAndDrop, Resize]} />
                 </ScheduleComponent>
             </ErrorBoundary>
@@ -146,6 +154,9 @@ const CalendarPage = ({ userId }) => {
 };
 
 export default CalendarPage;
+
+
+
 
 
 

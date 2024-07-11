@@ -14,11 +14,11 @@ const Login = ({ onLogin }) => {
             const response = await axios.post('http://localhost:5001/auth/login', { email, password });
             console.log("Login response:", response.data);
 
-            const{name, userId} = response.data;
+            const { name, userId } = response.data;
 
             if (name && userId) {
                 onLogin(name, userId); // Pass the name to onLogin
-                navigate('/home', { state: { userId: response.data.userId } }); // Pass userId via state
+                navigate('/manage-calendars', { state: { userId: response.data.userId } }); // Pass userId via state
             } else {
                 setErrorMessage(response.data);
             }

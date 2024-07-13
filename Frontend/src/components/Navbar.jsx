@@ -1,27 +1,35 @@
 import React, { useEffect, useState } from 'react';
-import { BiUserCircle } from "react-icons/bi";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './Navbar.css';
 import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
-function Navbar({ isLoggedIn, handleLogout, userName }) {
+function Navbar({ isLoggedIn, handleLogout, userName, propUserId }) {
   const navigate = useNavigate();
-  const [calendars, setCalendars] = useState([]);
+  const location = useLocation();
+  const userId = propUserId || location.state?.userId;
+
+  const [userCalendars, setUserCalendars] = useState([]);
 
   useEffect(() => {
-    const fetchCalendars = async () => {
+    const fetchUserCalendars = async () => {
       try {
-        const response = await axios.get('http://localhost:5001/calendars');
-        setCalendars(response.data);
+        if (!userId) {
+          throw new Error('userId is not defined');
+        }
+        const response = await axios.get(`http://localhost:5001/calendars/user-calendars/${userId}`);
+        setUserCalendars(response.data);
       } catch (error) {
-        console.error('Error fetching calendars:', error);
+        console.error('Error fetching user calendars:', error);
+        setUserCalendars([]);
       }
     };
 
-    if (isLoggedIn) {
-      fetchCalendars();
+    if (isLoggedIn && userId) {
+      fetchUserCalendars();
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, userId]);
 
   const handleSignupClick = () => {
     navigate('/register');
@@ -32,11 +40,11 @@ function Navbar({ isLoggedIn, handleLogout, userName }) {
   };
 
   const handleLogoutClick = () => {
-    handleLogout(); // Call the logout handler
-    navigate('/'); // Navigate to the landing page
+    handleLogout();
+    navigate('/');
   };
 
-  const handleManageCalendarsClick = () => {
+  const handleNewCalendarsClick = () => {
     navigate('/manage-calendars');
   };
 
@@ -61,7 +69,7 @@ function Navbar({ isLoggedIn, handleLogout, userName }) {
                 Calendars
               </button>
               <ul className="dropdown-menu" aria-labelledby="calendarsDropdown">
-                {calendars.map(calendar => (
+                {userCalendars.map(calendar => (
                   <li key={calendar._id}>
                     <button className="dropdown-item" onClick={() => navigate(`/calendars/${calendar._id}`)}>
                       {calendar.name}
@@ -70,8 +78,8 @@ function Navbar({ isLoggedIn, handleLogout, userName }) {
                 ))}
               </ul>
             </div>
-            <button onClick={handleManageCalendarsClick} className="btn btn-info" style={{ marginLeft: '10px' }}>
-              Manage Calendars
+            <button onClick={handleNewCalendarsClick} className="btn btn-info" style={{ marginLeft: '10px' }}>
+              Create New Calendar
             </button>
             <button onClick={handleLogoutClick} className="btn btn-danger" style={{ marginLeft: '10px' }}>
               Logout
@@ -93,4 +101,3 @@ function Navbar({ isLoggedIn, handleLogout, userName }) {
 }
 
 export default Navbar;
-

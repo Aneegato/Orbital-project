@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useLocation } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
+
 
 const ManageCalendars = ({ userId: propUserId }) => {
   const location = useLocation();
@@ -10,6 +13,7 @@ const ManageCalendars = ({ userId: propUserId }) => {
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const [calendars, setCalendars] = useState([]);
+  const [userEmailToAdd, setUserEmailToAdd] = useState('');
 
   useEffect(() => {
     if (!userId) {
@@ -64,46 +68,47 @@ const ManageCalendars = ({ userId: propUserId }) => {
     }
   };
 
+  const handleAddUserByEmail = () => {
+    const user = allUsers.find(user => user.email === userEmailToAdd);
+    if (user) {
+      handleUserSelection(user._id, user.name);
+      setUserEmailToAdd('');
+    } else {
+      console.error('User email not found');
+    }
+  };
+
   if (!userId) {
     return <div>Invalid user ID. Please log in again.</div>;
   }
 
   return (
     <div>
-      <h1>Manage Calendars</h1>
+      <h1>New Calendar</h1>
       <input
         type="text"
         placeholder="Calendar Name"
         value={calendarName}
         onChange={e => setCalendarName(e.target.value)}
       />
-      <h2>Select Users</h2>
-      <select onChange={(e) => handleUserSelection(e.target.value, e.target.selectedOptions[0].text)}>
-        <option value="">Select a user</option>
-        {allUsers.map(user => (
-          <option key={user._id} value={user._id}>
-            {user.name} ({user.email})
-          </option>
-        ))}
-      </select>
+      <h2>Add Collaborator</h2>
+      <input
+        type="text"
+        placeholder="User Email"
+        value={userEmailToAdd}
+        onChange={e => setUserEmailToAdd(e.target.value)}
+      />
+      <button onClick={handleAddUserByEmail}><FontAwesomeIcon icon={faPlus} />
+      </button>
       <div>
         {selectedUsers.map(user => (
           <span key={user.userId}>{user.userName}</span>
         ))}
       </div>
       <button onClick={handleCreateCalendar}>Create Calendar</button>
-      <h2>Your Calendars</h2>
-      <ul>
-        {calendars.map(calendar => (
-          <li key={calendar._id}>
-            <Link to={`/calendars/${calendar._id}`} className="btn btn-info">{calendar.name}</Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+      </div>
   );
 };
 
 export default ManageCalendars;
-
 

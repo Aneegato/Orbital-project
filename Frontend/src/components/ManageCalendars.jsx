@@ -1,14 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Link, useLocation } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
-const ManageCalendars = () => {
+
+const ManageCalendars = ({ userId: propUserId }) => {
+  const location = useLocation();
+  const userId = propUserId || location.state?.userId;
+
   const [calendarName, setCalendarName] = useState('');
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
-  const [ownerId, setOwnerId] = useState('');
+  const [calendars, setCalendars] = useState([]);
+  const [userEmailToAdd, setUserEmailToAdd] = useState('');
 
   useEffect(() => {
-    // Fetch all users on component mount
+    if (!userId) {
+      console.error('User ID is undefined. Please log in again.');
+      return;
+    }
+
+    console.log('Fetching users and calendars for userId:', userId);
+
     axios.get('http://localhost:5001/users')
       .then(response => {
         setAllUsers(response.data);
@@ -16,72 +30,85 @@ const ManageCalendars = () => {
       .catch(error => {
         console.error('Error fetching users:', error);
       });
-  }, []);
 
-  const handleUserSelection = (userId) => {
+    axios.get(`http://localhost:5001/calendars/user-calendars/${userId}`)
+      .then(response => {
+        setCalendars(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching calendars:', error);
+      });
+  }, [userId]);
+
+  const handleUserSelection = (userId, userName) => {
     setSelectedUsers(prevSelectedUsers =>
-      prevSelectedUsers.includes(userId)
-        ? prevSelectedUsers.filter(id => id !== userId)
-        : [...prevSelectedUsers, userId]
+      prevSelectedUsers.some(user => user.userId === userId)
+        ? prevSelectedUsers.filter(user => user.userId !== userId)
+        : [...prevSelectedUsers, { userId, userName }]
     );
   };
 
   const handleCreateCalendar = async () => {
-    // Log values to verify they are correct
-    console.log('Creating calendar with:', {
-      name: calendarName,
-      ownerId,
-      userIds: selectedUsers
-    });
+    if (!calendarName) {
+      console.error('Calendar name is required');
+      return;
+    }
 
     try {
+      const userIds = selectedUsers.map(user => user.userId);
       const response = await axios.post('http://localhost:5001/calendars', {
         name: calendarName,
-        ownerId,
-        userIds: selectedUsers
+        ownerId: userId,
+        userIds
       });
       console.log('Calendar created successfully:', response.data);
+      setCalendars([...calendars, response.data]);
     } catch (error) {
       console.error('Error creating calendar:', error);
     }
   };
 
+  const handleAddUserByEmail = () => {
+    const user = allUsers.find(user => user.email === userEmailToAdd);
+    if (user) {
+      handleUserSelection(user._id, user.name);
+      setUserEmailToAdd('');
+    } else {
+      console.error('User email not found');
+    }
+  };
+
+  if (!userId) {
+    return <div>Invalid user ID. Please log in again.</div>;
+  }
+
   return (
     <div>
-      <h1>Manage Calendars</h1>
+      <h1>New Calendar</h1>
       <input
         type="text"
         placeholder="Calendar Name"
         value={calendarName}
         onChange={e => setCalendarName(e.target.value)}
       />
-      <h2>Select Calendar Owner</h2>
-      <select value={ownerId} onChange={e => setOwnerId(e.target.value)}>
-        <option value="" disabled>Select Owner</option>
-        {allUsers.map(user => (
-          <option key={user._id} value={user._id}>
-            {user.name} ({user.email})
-          </option>
-        ))}
-      </select>
-      <h2>Select Users</h2>
+      <h2>Add Collaborator</h2>
+      <input
+        type="text"
+        placeholder="User Email"
+        value={userEmailToAdd}
+        onChange={e => setUserEmailToAdd(e.target.value)}
+      />
+      <button onClick={handleAddUserByEmail}><FontAwesomeIcon icon={faPlus} />
+      </button>
       <div>
-        {allUsers.map(user => (
-          <div key={user._id}>
-            <label>
-              <input
-                type="checkbox"
-                checked={selectedUsers.includes(user._id)}
-                onChange={() => handleUserSelection(user._id)}
-              />
-              {user.name} ({user.email})
-            </label>
-          </div>
+        {selectedUsers.map(user => (
+          <span key={user.userId}>{user.userName}</span>
         ))}
       </div>
       <button onClick={handleCreateCalendar}>Create Calendar</button>
-    </div>
+      </div>
   );
 };
 
 export default ManageCalendars;
+

@@ -47,8 +47,8 @@ function App() {
                 <Route path='/register' element={<Signup onSignup={handleLogin} />} />
                 <Route path='/login' element={<Login onLogin={handleLogin} />} />
                 <Route path='/home' element={isLoggedIn ? <Home userId={userId} /> : <Navigate to="/login" />} />
-                <Route path='/manage-calendars' element={isLoggedIn ? <ManageCalendars userId={userId} setCalendarsForNavbar={setCalendarsForNavbar} /> : <Navigate to="/login" />} />
                 <Route path='/calendars/:calendarId' element={isLoggedIn ? <CalendarPage userId={userId} /> : <Navigate to="/login" />} />
+                <Route path='/manage-calendars' element={isLoggedIn ? <ManageCalendars userId={userId} setCalendarsForNavbar={setCalendarsForNavbar} /> : <Navigate to="/login" />} />
                 <Route path='/events/:eventId' element={isLoggedIn ? <EventPage userId={userId} /> : <Navigate to="/login" />} />
             </Routes>
         </BrowserRouter>

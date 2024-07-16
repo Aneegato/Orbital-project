@@ -31,12 +31,13 @@ const CalendarPage = ({ userId }) => {
     const [modules, setModules] = useState([]);
     const [selectedModule, setSelectedModule] = useState('');
     const scheduleRef = useRef(null);
+    const baseURL = import.meta.env.VITE_APP_API_URL;
 
     useEffect(() => {
         console.log('Fetching calendar details for calendarId:', calendarId);
 
         // Fetch calendar details
-        axios.get(`http://localhost:5001/calendars/${calendarId}`)
+        axios.get(`${baseURL}/calendars/${calendarId}`)
             .then(response => {
                 console.log('Fetched calendar:', response.data);
                 setCalendar(response.data);
@@ -52,7 +53,7 @@ const CalendarPage = ({ userId }) => {
 
     const loadEvents = async () => {
         try {
-            const response = await axios.get(`http://localhost:5001/calendars/${calendarId}/events`);
+            const response = await axios.get(`${baseURL}/calendars/${calendarId}/events`);
             console.log('Fetched events:', response.data); // Log fetched events
             setEvents(response.data.map(event => ({
                 Id: event._id,
@@ -85,7 +86,7 @@ const CalendarPage = ({ userId }) => {
             };
             try {
                 console.log('Sending event data:', formattedData);
-                await axios.post('http://localhost:5001/events', formattedData);
+                await axios.post('${baseURL}/events', formattedData);
                 loadEvents();
             } catch (error) {
                 console.error('Error creating event:', error);
@@ -103,7 +104,7 @@ const CalendarPage = ({ userId }) => {
             };
             try {
                 console.log(`Updating event with ID: ${eventData.Id}`);
-                await axios.put(`http://localhost:5001/events/${eventData.Id}`, formattedData);
+                await axios.put(`${baseURL}/events/${eventData.Id}`, formattedData);
                 loadEvents();
             } catch (error) {
                 console.error('Error updating event:', error);
@@ -112,7 +113,7 @@ const CalendarPage = ({ userId }) => {
             const eventData = args.deletedRecords[0];
             try {
                 console.log(`Deleting event with ID: ${eventData.Id}`);
-                await axios.delete(`http://localhost:5001/events/${eventData.Id}`);
+                await axios.delete(`${baseURL}/events/${eventData.Id}`);
                 loadEvents();
             } catch (error) {
                 console.error('Error deleting event:', error);
@@ -135,7 +136,7 @@ const CalendarPage = ({ userId }) => {
     const addParsedEvents = async (parsedEvents) => {
         try {
             for (const event of parsedEvents) {
-                await axios.post('http://localhost:5001/events', event);
+                await axios.post('${baseURL}events', event);
             }
             loadEvents();
         } catch (error) {

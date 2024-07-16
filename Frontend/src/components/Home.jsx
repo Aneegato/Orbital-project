@@ -12,7 +12,7 @@ import {
     Resize,
 } from '@syncfusion/ej2-react-schedule';
 import { registerLicense } from '@syncfusion/ej2-base';
-import axios from 'axios';
+import axios from '../axiosConfig';
 import './scheduler.css';
 import ErrorBoundary from './ErrorBoundary';
 

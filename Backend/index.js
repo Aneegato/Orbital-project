@@ -9,11 +9,23 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://realtimenus.vercel.app'
+];
+
 const corsOptions = {
-    origin: process.env.API_URL,
+    origin: function(origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
     optionSuccessStatus: 200
 };
+
 app.use(cors(corsOptions));
 
 // Connect to MongoDB
@@ -34,7 +46,7 @@ const authRoutes = require('./routes/authRoutes');
 app.use('/calendars', calendarRoutes);
 app.use('/events', eventRoutes);
 app.use('/auth', authRoutes);
-app.use('/', userRoutes)
+app.use('/', userRoutes);
 
 // Server listening
 const port = process.env.PORT || 5001;

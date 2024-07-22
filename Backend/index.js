@@ -17,7 +17,7 @@ const allowedOrigins = [
 ];
 
 const corsOptions = {
-  origin: function(origin, callback) {
+  origin: function (origin, callback) {
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -30,9 +30,9 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Middleware to redirect HTTP to HTTPS (optional, if needed)
+// Middleware to redirect HTTP to HTTPS
 app.use((req, res, next) => {
-  if (req.headers['x-forwarded-proto'] !== 'https') {
+  if (process.env.NODE_ENV === 'production' && req.headers['x-forwarded-proto'] !== 'https') {
     return res.redirect(`https://${req.headers.host}${req.url}`);
   }
   next();
@@ -67,8 +67,8 @@ app.get('/health', (req, res) => {
 
 // Server listening on HTTP
 const port = process.env.PORT || 5001;
-app.listen(port, '127.0.0.1', () => {
-  console.log(`Server is running on port ${port}`);
+const server = app.listen(port, '127.0.0.1', () => {
+  console.log(`HTTP Server is running on port ${port}`);
 });
 
 // Optional: HTTPS server setup

@@ -11,14 +11,13 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// CORS configuration
 const allowedOrigins = [
   'http://localhost:5173',
   'https://realtimenus.vercel.app'
 ];
 
 const corsOptions = {
-  origin: function (origin, callback) {
+  origin: function(origin, callback) {
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -32,20 +31,15 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Middleware to redirect HTTP to HTTPS (optional, if needed)
-if (process.env.NODE_ENV === 'production') {
-  app.use((req, res, next) => {
-    if (req.headers['x-forwarded-proto'] !== 'https') {
-      return res.redirect(`https://${req.headers.host}${req.url}`);
-    }
-    next();
-  });
-}
+app.use((req, res, next) => {
+  if (req.headers['x-forwarded-proto'] !== 'https') {
+    return res.redirect(`https://${req.headers.host}${req.url}`);
+  }
+  next();
+});
 
 // Connect to MongoDB
-mongoose.connect(process.env.DB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('DB Connected!'))
   .catch(err => console.error('DB Connection Error:', err));
 
@@ -61,6 +55,11 @@ app.use('/events', eventRoutes);
 app.use('/auth', authRoutes);
 app.use('/', userRoutes);
 
+// Add a route handler for '/'
+app.get('/', (req, res) => {
+  res.send('Welcome to the backend!');
+});
+
 // Health Check Route
 app.get('/health', (req, res) => {
   res.status(200).send('Healthy');
@@ -68,18 +67,24 @@ app.get('/health', (req, res) => {
 
 // Server listening on HTTP
 const port = process.env.PORT || 5001;
-app.listen(port, () => {
-  console.log(`HTTP Server is running on port ${port}`);
+app.listen(port, '127.0.0.1', () => {
+  console.log(`Server is running on port ${port}`);
 });
 
 // Optional: HTTPS server setup
 if (process.env.NODE_ENV === 'production') {
-  const httpsOptions = {
-    key: fs.readFileSync('./certs/private.key'),
-    cert: fs.readFileSync('./certs/certificate.crt')
-  };
+  const keyPath = './certs/private.key';
+  const certPath = './certs/certificate.crt';
+  if (fs.existsSync(keyPath) && fs.existsSync(certPath)) {
+    const httpsOptions = {
+      key: fs.readFileSync(keyPath),
+      cert: fs.readFileSync(certPath)
+    };
 
-  https.createServer(httpsOptions, app).listen(443, () => {
-    console.log('HTTPS Server is running on port 443');
-  });
+    https.createServer(httpsOptions, app).listen(8443, () => {
+      console.log('HTTPS Server is running on port 8443');
+    });
+  } else {
+    console.error('HTTPS certificates not found. HTTPS server not started.');
+  }
 }

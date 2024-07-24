@@ -1,8 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const https = require('https');
-const fs = require('fs');
 require('dotenv').config();
 
 const app = express();
@@ -35,7 +33,7 @@ app.use(cors(corsOptions));
 // Handle preflight requests for all routes
 app.options('*', cors(corsOptions));
 
-// Middleware to redirect HTTP to HTTPS
+// Middleware to redirect HTTP to HTTPS (not needed on Vercel)
 app.use((req, res, next) => {
   if (process.env.NODE_ENV === 'production' && req.headers['x-forwarded-proto'] !== 'https') {
     return res.redirect(`https://${req.headers.host}${req.url}`);
@@ -72,24 +70,6 @@ app.get('/health', (req, res) => {
 
 // Server listening on HTTP
 const port = process.env.PORT || 5001;
-const server = app.listen(port, '127.0.0.1', () => {
-  console.log(`HTTP Server is running on port ${port}`);
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
-
-// Optional: HTTPS server setup
-if (process.env.NODE_ENV === 'production') {
-  const keyPath = './certs/private.key';
-  const certPath = './certs/certificate.crt';
-  if (fs.existsSync(keyPath) && fs.existsSync(certPath)) {
-    const httpsOptions = {
-      key: fs.readFileSync(keyPath),
-      cert: fs.readFileSync(certPath)
-    };
-
-    https.createServer(httpsOptions, app).listen(8443, () => {
-      console.log('HTTPS Server is running on port 8443');
-    });
-  } else {
-    console.error('HTTPS certificates not found. HTTPS server not started.');
-  }
-}

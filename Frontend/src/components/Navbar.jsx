@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './Navbar.css';
-import axios from 'axios';
+import axios from '../axiosConfig';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
@@ -11,6 +11,7 @@ function Navbar({ isLoggedIn, handleLogout, userName, propUserId }) {
   const userId = propUserId || location.state?.userId;
 
   const [userCalendars, setUserCalendars] = useState([]);
+  const baseURL = import.meta.env.VITE_APP_API_URL;
 
   useEffect(() => {
     const fetchUserCalendars = async () => {
@@ -18,7 +19,7 @@ function Navbar({ isLoggedIn, handleLogout, userName, propUserId }) {
         if (!userId) {
           throw new Error('userId is not defined');
         }
-        const response = await axios.get(`http://localhost:5001/calendars/user-calendars/${userId}`);
+        const response = await axios.get(`${baseURL}/calendars/user-calendars/${userId}`);
         setUserCalendars(response.data);
       } catch (error) {
         console.error('Error fetching user calendars:', error);

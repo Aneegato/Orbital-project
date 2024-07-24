@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
-import axios from 'axios';
+import axios from '../axiosConfig';
 
 const Login = ({ onLogin }) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const navigate = useNavigate();
+    const baseURL = import.meta.env.VITE_APP_API_URL;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:5001/auth/login', { email, password });
+            const response = await axios.post(`${baseURL}/auth/login`, { email, password });
             console.log("Login response:", response.data);
 
             const { name, userId } = response.data;

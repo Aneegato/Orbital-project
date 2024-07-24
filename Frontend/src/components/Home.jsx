@@ -12,7 +12,7 @@ import {
     Resize,
 } from '@syncfusion/ej2-react-schedule';
 import { registerLicense } from '@syncfusion/ej2-base';
-import axios from 'axios';
+import axios from '../axiosConfig';
 import './scheduler.css';
 import ErrorBoundary from './ErrorBoundary';
 
@@ -34,6 +34,7 @@ function Home() {
     const location = useLocation();
     const { userId } = location.state || {}; // Ensure userId is properly destructured
     const [events, setEvents] = useState([]);
+    const baseURL = import.meta.env.VITE_APP_API_URL;
 
     useEffect(() => {
         if (userId) {
@@ -43,7 +44,7 @@ function Home() {
 
     const loadEvents = async () => {
         try {
-            const response = await axios.get(`http://localhost:5001/events?userId=${userId}`);
+            const response = await axios.get(`${baseURL}/events?userId=${userId}`);
             setEvents(response.data.map(event => ({
                 Id: event._id,
                 Subject: event.Subject,
@@ -72,7 +73,7 @@ function Home() {
             };
             try {
                 console.log('Sending event data:', formattedData);  // Log the data being sent
-                await axios.post('http://localhost:5001/events', formattedData); // Removed 'auth'
+                await axios.post('${baseURL}/events', formattedData); // Removed 'auth'
                 loadEvents();
             } catch (error) {
                 console.error('Error creating event:', error);
@@ -88,7 +89,7 @@ function Home() {
                 Location: eventData.Location
             };
             try {
-                await axios.put(`http://localhost:5001/events/${eventData.Id}`, formattedData); // Removed 'auth'
+                await axios.put(`${baseURL}/events/${eventData.Id}`, formattedData); // Removed 'auth'
                 loadEvents();
             } catch (error) {
                 console.error('Error updating event:', error);
@@ -96,7 +97,7 @@ function Home() {
         } else if (args.requestType === 'eventRemove') {
             const eventData = args.deletedRecords[0];
             try {
-                await axios.delete(`http://localhost:5001/events/${eventData.Id}`); // Removed 'auth'
+                await axios.delete(`${baseURL}/events/${eventData.Id}`); // Removed 'auth'
                 loadEvents();
             } catch (error) {
                 console.error('Error deleting event:', error);

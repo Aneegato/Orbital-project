@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from '../axiosConfig';
 import { Link, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
+
+
 
 
 const ManageCalendars = ({ userId: propUserId }) => {
@@ -14,6 +16,7 @@ const ManageCalendars = ({ userId: propUserId }) => {
   const [allUsers, setAllUsers] = useState([]);
   const [calendars, setCalendars] = useState([]);
   const [userEmailToAdd, setUserEmailToAdd] = useState('');
+  const baseURL = import.meta.env.VITE_APP_API_URL;
 
   useEffect(() => {
     if (!userId) {
@@ -23,7 +26,7 @@ const ManageCalendars = ({ userId: propUserId }) => {
 
     console.log('Fetching users and calendars for userId:', userId);
 
-    axios.get('http://localhost:5001/users')
+    axios.get(`${baseURL}/users`)
       .then(response => {
         setAllUsers(response.data);
       })
@@ -31,7 +34,7 @@ const ManageCalendars = ({ userId: propUserId }) => {
         console.error('Error fetching users:', error);
       });
 
-    axios.get(`http://localhost:5001/calendars/user-calendars/${userId}`)
+    axios.get(`${baseURL}/calendars/user-calendars/${userId}`)
       .then(response => {
         setCalendars(response.data);
       })
@@ -56,7 +59,7 @@ const ManageCalendars = ({ userId: propUserId }) => {
 
     try {
       const userIds = selectedUsers.map(user => user.userId);
-      const response = await axios.post('http://localhost:5001/calendars', {
+      const response = await axios.post(`${baseURL}/calendars`, {
         name: calendarName,
         ownerId: userId,
         userIds

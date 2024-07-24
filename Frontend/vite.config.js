@@ -11,5 +11,14 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist'
-  }
+  },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5001', // Your backend server for development
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
+  },
 });

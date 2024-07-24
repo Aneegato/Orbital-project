@@ -28,8 +28,6 @@ const CalendarPage = ({ userId }) => {
     const { calendarId } = useParams();
     const [calendar, setCalendar] = useState(null);
     const [events, setEvents] = useState([]);
-    const [modules, setModules] = useState([]);
-    const [selectedModule, setSelectedModule] = useState('');
     const scheduleRef = useRef(null);
     const baseURL = import.meta.env.VITE_APP_API_URL;
 
@@ -48,7 +46,6 @@ const CalendarPage = ({ userId }) => {
 
         // Fetch events for this calendar
         loadEvents();
-
     }, [calendarId]);
 
     const loadEvents = async () => {
@@ -86,7 +83,7 @@ const CalendarPage = ({ userId }) => {
             };
             try {
                 console.log('Sending event data:', formattedData);
-                await axios.post('${baseURL}/events', formattedData);
+                await axios.post(`${baseURL}/events`, formattedData);
                 loadEvents();
             } catch (error) {
                 console.error('Error creating event:', error);
@@ -136,7 +133,7 @@ const CalendarPage = ({ userId }) => {
     const addParsedEvents = async (parsedEvents) => {
         try {
             for (const event of parsedEvents) {
-                await axios.post('${baseURL}events', event);
+                await axios.post(`${baseURL}/events`, event);
             }
             loadEvents();
         } catch (error) {
@@ -228,11 +225,3 @@ const CalendarPage = ({ userId }) => {
 };
 
 export default CalendarPage;
-
-
-
-
-
-
-
-

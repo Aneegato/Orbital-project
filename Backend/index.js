@@ -32,6 +32,9 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+// Handle preflight requests for all routes
+app.options('*', cors(corsOptions));
+
 // Middleware to redirect HTTP to HTTPS
 app.use((req, res, next) => {
   if (process.env.NODE_ENV === 'production' && req.headers['x-forwarded-proto'] !== 'https') {

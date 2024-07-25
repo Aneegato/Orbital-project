@@ -34,6 +34,15 @@ app.use(cors(corsOptions));
 // Handle preflight requests for all routes
 app.options('*', cors(corsOptions));
 
+app.use((req, res, next) => {
+    res.cookie('yourCookieName', 'yourCookieValue', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'None', // Ensure this is correctly set
+    });
+    next();
+  });
+  
 // Connect to MongoDB
 mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('DB Connected!'))

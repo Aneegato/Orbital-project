@@ -35,11 +35,8 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
 app.use((req, res, next) => {
-    res.cookie('yourCookieName', 'yourCookieValue', {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'None', // Ensure this is correctly set
-    });
+    res.header('Access-Control-Allow-Origin', 'https://realtimenus.vercel.app'); // Replace with your client's origin
+    res.header('Access-Control-Allow-Credentials', 'true'); // Allow credentials
     next();
   });
   

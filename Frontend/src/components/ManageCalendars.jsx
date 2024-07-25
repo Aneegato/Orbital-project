@@ -58,7 +58,7 @@ const ManageCalendars = ({ userId: propUserId }) => {
 
     try {
       const userIds = selectedUsers.map(user => user.userId);
-      const response = await axios.post(`${baseURL}/calendars`, {
+      const response = await axios.post(`/calendars`, {
         name: calendarName,
         ownerId: userId,
         userIds

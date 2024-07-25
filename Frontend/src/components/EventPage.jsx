@@ -8,7 +8,7 @@ const EventPage = () => {
 
     useEffect(() => {
         // Fetch event details
-        axios.get(`/events/${eventId}`, { withCredentials: true })
+        axios.get(`/events/${eventId}`)
             .then(response => {
                 setEvent(response.data);
             })
@@ -23,7 +23,7 @@ const EventPage = () => {
 
     const handleUpdateEvent = async () => {
         try {
-            await axios.put(`/events/${eventId}`, event, { withCredentials: true });
+            await axios.put(`/events/${eventId}`, event);
             console.log('Event updated successfully');
         } catch (error) {
             console.error('Error updating event:', error);

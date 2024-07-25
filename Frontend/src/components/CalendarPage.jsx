@@ -34,7 +34,7 @@ const CalendarPage = ({ userId }) => {
         console.log('Fetching calendar details for calendarId:', calendarId);
 
         // Fetch calendar details
-        axios.get(`/calendars/${calendarId}`, { withCredentials: true })
+        axios.get(`/calendars/${calendarId}`)
             .then(response => {
                 console.log('Fetched calendar:', response.data);
                 setCalendar(response.data);
@@ -49,7 +49,7 @@ const CalendarPage = ({ userId }) => {
 
     const loadEvents = async () => {
         try {
-            const response = await axios.get(`/calendars/${calendarId}/events`, { withCredentials: true });
+            const response = await axios.get(`/calendars/${calendarId}/events`);
             console.log('Fetched events:', response.data); // Log fetched events
             setEvents(response.data.map(event => ({
                 Id: event._id,
@@ -82,7 +82,7 @@ const CalendarPage = ({ userId }) => {
             };
             try {
                 console.log('Sending event data:', formattedData);
-                await axios.post(`/events`, formattedData, { withCredentials: true });
+                await axios.post(`/events`, formattedData);
                 loadEvents();
             } catch (error) {
                 console.error('Error creating event:', error);
@@ -100,7 +100,7 @@ const CalendarPage = ({ userId }) => {
             };
             try {
                 console.log(`Updating event with ID: ${eventData.Id}`);
-                await axios.put(`/events/${eventData.Id}`, formattedData, { withCredentials: true });
+                await axios.put(`/events/${eventData.Id}`, formattedData);
                 loadEvents();
             } catch (error) {
                 console.error('Error updating event:', error);
@@ -132,7 +132,7 @@ const CalendarPage = ({ userId }) => {
     const addParsedEvents = async (parsedEvents) => {
         try {
             for (const event of parsedEvents) {
-                await axios.post(`/events`, event, { withCredentials: true });
+                await axios.post(`/events`, event);
             }
             loadEvents();
         } catch (error) {

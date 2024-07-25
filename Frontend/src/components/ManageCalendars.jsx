@@ -25,7 +25,7 @@ const ManageCalendars = ({ userId: propUserId }) => {
   
     console.log('Fetching users and calendars for userId:', userId);
   
-    axios.get(`/users`, { withCredentials: true })
+    axios.get(`/users`)
       .then(response => {
         setAllUsers(response.data);
       })
@@ -33,7 +33,7 @@ const ManageCalendars = ({ userId: propUserId }) => {
         console.error('Error fetching users:', error);
       });
   
-    axios.get(`/calendars/user-calendars/${userId}`, { withCredentials: true })
+    axios.get(`/calendars/user-calendars/${userId}`)
       .then(response => {
         setCalendars(response.data);
       })

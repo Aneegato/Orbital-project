@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const baseURL = import.meta.env.MODE === 'production'
   ? import.meta.env.VITE_APP_API_URL
-  : 'https://d3c0-218-144-19-223.ngrok-free.app';
+  : 'https://f38e-58-140-20-247.ngrok-free.app';
 
 const instance = axios.create({
   baseURL,

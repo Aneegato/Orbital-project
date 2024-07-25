@@ -44,7 +44,7 @@ function Home() {
 
     const loadEvents = async () => {
         try {
-            const response = await axios.get(`${baseURL}/events?userId=${userId}`);
+            const response = await axios.get(`${baseURL}/events?userId=${userId}`, { withCredentials: true });
             setEvents(response.data.map(event => ({
                 Id: event._id,
                 Subject: event.Subject,
@@ -73,7 +73,7 @@ function Home() {
             };
             try {
                 console.log('Sending event data:', formattedData);  // Log the data being sent
-                await axios.post('${baseURL}/events', formattedData); // Removed 'auth'
+                await axios.post('${baseURL}/events', formattedData, { withCredentials: true }); // Removed 'auth'
                 loadEvents();
             } catch (error) {
                 console.error('Error creating event:', error);
@@ -89,7 +89,7 @@ function Home() {
                 Location: eventData.Location
             };
             try {
-                await axios.put(`${baseURL}/events/${eventData.Id}`, formattedData); // Removed 'auth'
+                await axios.put(`${baseURL}/events/${eventData.Id}`, formattedData, { withCredentials: true }); // Removed 'auth'
                 loadEvents();
             } catch (error) {
                 console.error('Error updating event:', error);
@@ -97,7 +97,7 @@ function Home() {
         } else if (args.requestType === 'eventRemove') {
             const eventData = args.deletedRecords[0];
             try {
-                await axios.delete(`${baseURL}/events/${eventData.Id}`); // Removed 'auth'
+                await axios.delete(`${baseURL}/events/${eventData.Id}`, { withCredentials: true }); // Removed 'auth'
                 loadEvents();
             } catch (error) {
                 console.error('Error deleting event:', error);

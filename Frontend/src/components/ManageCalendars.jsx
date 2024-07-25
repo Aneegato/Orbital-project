@@ -22,18 +22,18 @@ const ManageCalendars = ({ userId: propUserId }) => {
       console.error('User ID is undefined. Please log in again.');
       return;
     }
-
+  
     console.log('Fetching users and calendars for userId:', userId);
-
-    axios.get(`/users`)
+  
+    axios.get(`/users`, { withCredentials: true })
       .then(response => {
         setAllUsers(response.data);
       })
       .catch(error => {
         console.error('Error fetching users:', error);
       });
-
-    axios.get(`/calendars/user-calendars/${userId}`)
+  
+    axios.get(`/calendars/user-calendars/${userId}`, { withCredentials: true })
       .then(response => {
         setCalendars(response.data);
       })
@@ -41,34 +41,27 @@ const ManageCalendars = ({ userId: propUserId }) => {
         console.error('Error fetching calendars:', error);
       });
   }, [userId]);
-
-  const handleUserSelection = (userId, userName) => {
-    setSelectedUsers(prevSelectedUsers =>
-      prevSelectedUsers.some(user => user.userId === userId)
-        ? prevSelectedUsers.filter(user => user.userId !== userId)
-        : [...prevSelectedUsers, { userId, userName }]
-    );
-  };
-
+  
   const handleCreateCalendar = async () => {
     if (!calendarName) {
       console.error('Calendar name is required');
       return;
     }
-
+  
     try {
       const userIds = selectedUsers.map(user => user.userId);
       const response = await axios.post(`/calendars`, {
         name: calendarName,
         ownerId: userId,
         userIds
-      });
+      }, { withCredentials: true });
       console.log('Calendar created successfully:', response.data);
       setCalendars([...calendars, response.data]);
     } catch (error) {
       console.error('Error creating calendar:', error);
     }
   };
+  
 
   const handleAddUserByEmail = () => {
     const user = allUsers.find(user => user.email === userEmailToAdd);

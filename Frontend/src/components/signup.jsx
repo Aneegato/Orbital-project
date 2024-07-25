@@ -13,7 +13,7 @@ function Signup({ onSignup }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const result = await axios.post(`/auth/register`, { name, email, password });
+            const result = await axios.post(`/auth/register`, { name, email, password }, { withCredentials: true });
             console.log(result);
             onSignup(name);
             navigate('/home');

@@ -18,7 +18,7 @@ function Navbar({ isLoggedIn, handleLogout, userName, propUserId }) {
         if (!userId) {
           throw new Error('userId is not defined');
         }
-        const response = await axios.get(`/calendars/user-calendars/${userId}`, { withCredentials: true });
+        const response = await axios.get(`/calendars/user-calendars/${userId}`);
         setUserCalendars(response.data);
       } catch (error) {
         console.error('Error fetching user calendars:', error);

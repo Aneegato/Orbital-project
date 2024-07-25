@@ -16,7 +16,6 @@ const ManageCalendars = ({ userId: propUserId }) => {
   const [allUsers, setAllUsers] = useState([]);
   const [calendars, setCalendars] = useState([]);
   const [userEmailToAdd, setUserEmailToAdd] = useState('');
-  const baseURL = import.meta.env.VITE_APP_API_URL;
 
   useEffect(() => {
     if (!userId) {
@@ -26,7 +25,7 @@ const ManageCalendars = ({ userId: propUserId }) => {
 
     console.log('Fetching users and calendars for userId:', userId);
 
-    axios.get(`${baseURL}/users`)
+    axios.get(`/users`)
       .then(response => {
         setAllUsers(response.data);
       })
@@ -34,7 +33,7 @@ const ManageCalendars = ({ userId: propUserId }) => {
         console.error('Error fetching users:', error);
       });
 
-    axios.get(`${baseURL}/calendars/user-calendars/${userId}`)
+    axios.get(`/calendars/user-calendars/${userId}`)
       .then(response => {
         setCalendars(response.data);
       })

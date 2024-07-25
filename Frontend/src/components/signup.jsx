@@ -9,12 +9,11 @@ function Signup({ onSignup }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
-    const baseURL = import.meta.env.VITE_APP_API_URL;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const result = await axios.post(`${baseURL}/auth/register`, { name, email, password });
+            const result = await axios.post(`/auth/register`, { name, email, password });
             console.log(result);
             onSignup(name);
             navigate('/home');

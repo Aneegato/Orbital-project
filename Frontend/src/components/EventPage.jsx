@@ -5,11 +5,10 @@ import { useParams } from 'react-router-dom';
 const EventPage = () => {
     const { eventId } = useParams();
     const [event, setEvent] = useState(null);
-    const baseURL = import.meta.env.VITE_APP_API_URL;
 
     useEffect(() => {
         // Fetch event details
-        axios.get(`${baseURL}/events/${eventId}`)
+        axios.get(`/events/${eventId}`)
             .then(response => {
                 setEvent(response.data);
             })
@@ -24,7 +23,7 @@ const EventPage = () => {
 
     const handleUpdateEvent = async () => {
         try {
-            await axios.put(`${baseURL}/events/${eventId}`, event);
+            await axios.put(`/events/${eventId}`, event);
             console.log('Event updated successfully');
         } catch (error) {
             console.error('Error updating event:', error);
@@ -71,3 +70,4 @@ const EventPage = () => {
 };
 
 export default EventPage;
+

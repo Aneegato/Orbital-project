@@ -12,7 +12,7 @@ app.use(express.urlencoded({ extended: false }));
 const allowedOrigins = [
   'http://localhost:5173',
   'https://realtimenus.vercel.app',
-  'https://d3c0-218-144-19-223.ngrok-free.app'
+  'https://f38e-58-140-20-247.ngrok-free.app'
 ];
 
 const corsOptions = {

@@ -4,9 +4,6 @@ import { Link, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
-
-
-
 const ManageCalendars = ({ userId: propUserId }) => {
   const location = useLocation();
   const userId = propUserId || location.state?.userId;
@@ -22,9 +19,9 @@ const ManageCalendars = ({ userId: propUserId }) => {
       console.error('User ID is undefined. Please log in again.');
       return;
     }
-  
+
     console.log('Fetching users and calendars for userId:', userId);
-  
+
     axios.get(`/users`)
       .then(response => {
         setAllUsers(response.data);
@@ -32,7 +29,7 @@ const ManageCalendars = ({ userId: propUserId }) => {
       .catch(error => {
         console.error('Error fetching users:', error);
       });
-  
+
     axios.get(`/calendars/user-calendars/${userId}`)
       .then(response => {
         setCalendars(response.data);
@@ -41,13 +38,13 @@ const ManageCalendars = ({ userId: propUserId }) => {
         console.error('Error fetching calendars:', error);
       });
   }, [userId]);
-  
+
   const handleCreateCalendar = async () => {
     if (!calendarName) {
       console.error('Calendar name is required');
       return;
     }
-  
+
     try {
       const userIds = selectedUsers.map(user => user.userId);
       const response = await axios.post(`/calendars`, {
@@ -61,7 +58,6 @@ const ManageCalendars = ({ userId: propUserId }) => {
       console.error('Error creating calendar:', error);
     }
   };
-  
 
   const handleAddUserByEmail = () => {
     const user = allUsers.find(user => user.email === userEmailToAdd);
@@ -70,6 +66,12 @@ const ManageCalendars = ({ userId: propUserId }) => {
       setUserEmailToAdd('');
     } else {
       console.error('User email not found');
+    }
+  };
+
+  const handleUserSelection = (userId, userName) => {
+    if (!selectedUsers.some(user => user.userId === userId)) {
+      setSelectedUsers([...selectedUsers, { userId, userName }]);
     }
   };
 
@@ -93,7 +95,8 @@ const ManageCalendars = ({ userId: propUserId }) => {
         value={userEmailToAdd}
         onChange={e => setUserEmailToAdd(e.target.value)}
       />
-      <button onClick={handleAddUserByEmail}><FontAwesomeIcon icon={faPlus} />
+      <button onClick={handleAddUserByEmail}>
+        <FontAwesomeIcon icon={faPlus} />
       </button>
       <div>
         {selectedUsers.map(user => (
@@ -101,9 +104,8 @@ const ManageCalendars = ({ userId: propUserId }) => {
         ))}
       </div>
       <button onClick={handleCreateCalendar}>Create Calendar</button>
-      </div>
+    </div>
   );
 };
 
 export default ManageCalendars;
-

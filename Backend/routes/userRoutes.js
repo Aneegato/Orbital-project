@@ -50,7 +50,7 @@ router.post('/register', async (req, res) => {
 
 
 // Get All Users Route
-router.get('/users', async (req, res) => {
+router.get('/', async (req, res) => {
     try {
         const users = await EmployeeModel.find({}, 'name email'); // Only select necessary fields
         res.json(users);

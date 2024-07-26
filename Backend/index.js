@@ -12,7 +12,7 @@ app.use(express.urlencoded({ extended: false }));
 const allowedOrigins = [
   'http://localhost:5173',
   'https://realtimenus.vercel.app',
-  'https://f38e-58-140-20-247.ngrok-free.app'  // Add your ngrok URL here
+  'https://f38e-58-140-20-247.ngrok-free.app'
 ];
 
 const corsOptions = {
@@ -23,7 +23,7 @@ const corsOptions = {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true, // Allow cookies and other credentials
+  credentials: true,
   optionsSuccessStatus: 200,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
@@ -33,6 +33,12 @@ app.use(cors(corsOptions));
 
 // Handle preflight requests for all routes
 app.options('*', cors(corsOptions));
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://realtimenus.vercel.app'); 
+  res.header('Access-Control-Allow-Credentials', 'true');
+  next();
+});
 
 // Connect to MongoDB
 mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true })

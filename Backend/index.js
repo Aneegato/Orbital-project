@@ -12,6 +12,7 @@ app.use(express.urlencoded({ extended: false }));
 const allowedOrigins = [
   'http://localhost:5173',
   'https://realtimenus.vercel.app',
+  'https://f38e-58-140-20-247.ngrok-free.app'  // Add your ngrok URL here
 ];
 
 const corsOptions = {
@@ -32,13 +33,6 @@ app.use(cors(corsOptions));
 
 // Handle preflight requests for all routes
 app.options('*', cors(corsOptions));
-
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', 'https://realtimenus.vercel.app'); // Replace with your client's origin
-    res.header('Access-Control-Allow-Credentials', 'true'); // Allow credentials
-    next();
-  });
-  
 
 // Connect to MongoDB
 mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true })

@@ -5,7 +5,6 @@ require('dotenv').config();
 
 const app = express();
 
-// Middleware setup
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -15,7 +14,6 @@ const allowedOrigins = [
   'https://f38e-58-140-20-247.ngrok-free.app'
 ];
 
-// CORS options
 const corsOptions = {
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
@@ -29,7 +27,6 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
 };
 
-// Request logging middleware
 app.use((req, res, next) => {
   console.log(`Request Origin: ${req.headers.origin}`);
   console.log(`Request Method: ${req.method}`);
@@ -37,13 +34,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// Apply CORS middleware
 app.use(cors(corsOptions));
 
-// Handle preflight requests for all routes
-app.options('*', cors(corsOptions));
+app.options('/users', cors(corsOptions));
+app.options('/calendars/user-calendars/:userId', cors(corsOptions));
 
-// Ensure CORS is applied correctly
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
@@ -51,24 +46,19 @@ app.use((req, res, next) => {
     res.header('Access-Control-Allow-Credentials', 'true');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
-  } else {
-    res.header('Access-Control-Allow-Origin', '*');
   }
   next();
 });
 
-// Connect to MongoDB
 mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('DB Connected!'))
   .catch(err => console.error('DB Connection Error:', err));
 
-// Route Handlers
 const calendarRoutes = require('./routes/calendarRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
 
-// Use Routes
 app.use('/calendars', calendarRoutes);
 app.use('/events', eventRoutes);
 app.use('/auth', authRoutes);

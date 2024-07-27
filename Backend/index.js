@@ -15,6 +15,7 @@ const allowedOrigins = [
   'https://f38e-58-140-20-247.ngrok-free.app'
 ];
 
+// CORS options
 const corsOptions = {
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
@@ -28,9 +29,22 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
 };
 
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`Request Origin: ${req.headers.origin}`);
+  console.log(`Request Method: ${req.method}`);
+  console.log(`Request Path: ${req.path}`);
+  next();
+});
+
+// Apply CORS middleware
+app.use(cors(corsOptions));
+
+// Handle preflight requests for all routes
+app.options('*', cors(corsOptions));
+
 // Ensure CORS is applied correctly
 app.use((req, res, next) => {
-  console.log(`Origin: ${req.headers.origin}`);
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin);
@@ -42,12 +56,6 @@ app.use((req, res, next) => {
   }
   next();
 });
-
-// Use CORS middleware
-app.use(cors(corsOptions));
-
-// Handle preflight requests for all routes
-app.options('*', cors(corsOptions));
 
 // Connect to MongoDB
 mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true })

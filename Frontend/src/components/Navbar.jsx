@@ -19,7 +19,12 @@ function Navbar({ isLoggedIn, handleLogout, userName, propUserId }) {
           throw new Error('userId is not defined');
         }
         const response = await axios.get(`/calendars/user-calendars/${userId}`);
-        setUserCalendars(response.data);
+        
+        if (Array.isArray(response.data)) {
+          setUserCalendars(response.data);
+        } else {
+          setUserCalendars([]);
+        }
       } catch (error) {
         console.error('Error fetching user calendars:', error);
         setUserCalendars([]);
@@ -69,13 +74,17 @@ function Navbar({ isLoggedIn, handleLogout, userName, propUserId }) {
                 Calendars
               </button>
               <ul className="dropdown-menu" aria-labelledby="calendarsDropdown">
-                {userCalendars.map(calendar => (
-                  <li key={calendar._id}>
-                    <button className="dropdown-item" onClick={() => navigate(`/calendars/${calendar._id}`)}>
-                      {calendar.name}
-                    </button>
-                  </li>
-                ))}
+                {userCalendars.length > 0 ? (
+                  userCalendars.map(calendar => (
+                    <li key={calendar._id}>
+                      <button className="dropdown-item" onClick={() => navigate(`/calendars/${calendar._id}`)}>
+                        {calendar.name}
+                      </button>
+                    </li>
+                  ))
+                ) : (
+                  <li className="dropdown-item">No calendars available</li>
+                )}
               </ul>
             </div>
             <button onClick={handleNewCalendarsClick} className="btn btn-info" style={{ marginLeft: '10px' }}>

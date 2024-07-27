@@ -8,6 +8,7 @@ import LandingPage from './components/LandingPage';
 import ManageCalendars from './components/ManageCalendars';
 import CalendarPage from './components/CalendarPage';
 import EventPage from './components/EventPage';
+import ErrorBoundary from './components/ErrorBoundary'; // Import the ErrorBoundary
 
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -35,27 +36,27 @@ function App() {
     };
 
     return (
-        <BrowserRouter>
-            <Navbar
-                isLoggedIn={isLoggedIn}
-                handleLogout={handleLogout}
-                userName={userName}
-                calendars={calendars}
-            />
-            <Routes>
-                <Route path='/' element={<LandingPage isLoggedIn={isLoggedIn} />} />
-                <Route path='/register' element={<Signup onSignup={handleLogin} />} />
-                <Route path='/login' element={<Login onLogin={handleLogin} />} />
-                <Route path='/home' element={isLoggedIn ? <Home userId={userId} /> : <Navigate to="/login" />} />
-                <Route path='/calendars/:calendarId' element={isLoggedIn ? <CalendarPage userId={userId} /> : <Navigate to="/login" />} />
-                <Route path='/manage-calendars' element={isLoggedIn ? <ManageCalendars userId={userId} setCalendarsForNavbar={setCalendarsForNavbar} /> : <Navigate to="/login" />} />
-                <Route path='/events/:eventId' element={isLoggedIn ? <EventPage userId={userId} /> : <Navigate to="/login" />} />
-            </Routes>
-        </BrowserRouter>
+        <ErrorBoundary> {/* Wrap the entire app or specific parts with ErrorBoundary */}
+            <BrowserRouter>
+                <Navbar
+                    isLoggedIn={isLoggedIn}
+                    handleLogout={handleLogout}
+                    userName={userName}
+                    calendars={calendars}
+                />
+                <Routes>
+                    <Route path='/' element={<LandingPage isLoggedIn={isLoggedIn} />} />
+                    <Route path='/register' element={<Signup onSignup={handleLogin} />} />
+                    <Route path='/login' element={<Login onLogin={handleLogin} />} />
+                    <Route path='/home' element={isLoggedIn ? <Home userId={userId} /> : <Navigate to="/login" />} />
+                    <Route path='/calendars/:calendarId' element={isLoggedIn ? <CalendarPage userId={userId} /> : <Navigate to="/login" />} />
+                    <Route path='/manage-calendars' element={isLoggedIn ? <ManageCalendars userId={userId} setCalendarsForNavbar={setCalendarsForNavbar} /> : <Navigate to="/login" />} />
+                    <Route path='/events/:eventId' element={isLoggedIn ? <EventPage userId={userId} /> : <Navigate to="/login" />} />
+                </Routes>
+            </BrowserRouter>
+        </ErrorBoundary>
     );
 }
 
 export default App;
-
-
 

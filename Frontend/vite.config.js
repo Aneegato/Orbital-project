@@ -15,7 +15,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:5001', // Your backend server for development
+        target: 'https://f38e-58-140-20-247.ngrok-free.app', // Ensure this is correct
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },

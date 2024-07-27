@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const baseURL = import.meta.env.MODE === 'production'
   ? import.meta.env.VITE_APP_API_URL
-  : 'https://f38e-58-140-20-247.ngrok-free.app';
+  : '/api'; // Use the proxy for development
 
 const instance = axios.create({
   baseURL,

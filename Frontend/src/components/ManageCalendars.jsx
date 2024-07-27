@@ -22,8 +22,9 @@ const ManageCalendars = ({ userId: propUserId }) => {
 
     console.log('Fetching users and calendars for userId:', userId);
 
-    axios.get(`/users`)
+    axios.get('/users')
       .then(response => {
+        console.log('Users fetched:', response.data);
         setAllUsers(response.data);
       })
       .catch(error => {
@@ -32,6 +33,7 @@ const ManageCalendars = ({ userId: propUserId }) => {
 
     axios.get(`/calendars/user-calendars/${userId}`)
       .then(response => {
+        console.log('Calendars fetched:', response.data);
         setCalendars(response.data);
       })
       .catch(error => {

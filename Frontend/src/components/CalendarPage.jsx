@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from '../axiosConfig';
+import Scheduler from './Scheduler';
 import {
     ScheduleComponent,
     Day,
@@ -18,8 +19,8 @@ import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
 import { registerLicense } from '@syncfusion/ej2-base';
 import ErrorBoundary from './ErrorBoundary';
 import './scheduler.css';
-import { parseICSFile } from '../utils/parseICS'; // Adjust the path as needed
-import { getModules, getModuleDetails } from '../nusmodsService'; // Adjust the path as needed
+import { parseICSFile } from '../utils/parseICS';
+import { getModules, getModuleDetails } from '../nusmodsService';
 
 registerLicense('Ngo9BigBOggjHTQxAR8/V1NCaF5cXmZCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdnWXlfd3VURmFdVk1+XUU=');
 
@@ -30,6 +31,7 @@ const CalendarPage = ({ userId }) => {
     const [modules, setModules] = useState([]);
     const [selectedModule, setSelectedModule] = useState('');
     const [moduleTimetable, setModuleTimetable] = useState([]);
+    const [selectedTimetableDetail, setSelectedTimetableDetail] = useState(null);
     const scheduleRef = useRef(null);
     const baseURL = import.meta.env.VITE_APP_API_URL;
 
@@ -74,43 +76,32 @@ const CalendarPage = ({ userId }) => {
     const fetchModules = async () => {
         try {
             const modulesData = await getModules(); // Fetch module list for 2024-2025
+            console.log('Fetched modules data:', modulesData); // Log the fetched modules data to inspect its structure
     
-            // Log the fetched modules data to inspect its structure
-            console.log('Fetched modules data:', modulesData);
-    
-            // Ensure modulesData is defined and an array (or the expected type)
             if (!Array.isArray(modulesData) || modulesData.length === 0) {
                 throw new Error('No modules data available or invalid data structure');
             }
     
-            // Set the modules state with the fetched data
             setModules(modulesData);
         } catch (error) {
             console.error('Error fetching modules:', error);
         }
     };
     
-    
     const fetchModuleTimetable = async (moduleCode) => {
         try {
             const moduleDetails = await getModuleDetails('2024-2025', moduleCode); // Fetch module details
-            
-            // Log the fetched module details to inspect its structure
-            console.log('Fetched module details:', moduleDetails);
+            console.log('Fetched module details:', moduleDetails); // Log the fetched module details to inspect its structure
     
-            // Ensure semesterData is defined and has at least one element
             if (!moduleDetails.semesterData || moduleDetails.semesterData.length === 0) {
                 throw new Error('No semester data available for this module');
             }
     
-            // Assuming semester 1 (first element in the semesterData array)
             setModuleTimetable(moduleDetails.semesterData[0].timetable);
         } catch (error) {
             console.error('Error fetching module timetable:', error);
         }
     };
-    
-    
 
     const handleModuleChange = (e) => {
         const moduleCode = e.value;
@@ -118,54 +109,46 @@ const CalendarPage = ({ userId }) => {
         fetchModuleTimetable(moduleCode);
     };
 
-    const addModuleToCalendar = async () => {
+    const handleTimetableDetailClick = (lesson) => {
+        setSelectedTimetableDetail(lesson);
+    };
+
+    const addSelectedTimetableDetailToCalendar = async () => {
+        if (!selectedTimetableDetail) return;
+
+        const newEvent = {
+            userId,
+            calendarId,
+            Subject: `${selectedModule} ${selectedTimetableDetail.lessonType}`,
+            Description: `Class No: ${selectedTimetableDetail.classNo}`,
+            StartTime: new Date(`2024-08-12T${selectedTimetableDetail.startTime}:00`), // Assuming classes start from 12th Aug 2024
+            EndTime: new Date(`2024-08-12T${selectedTimetableDetail.endTime}:00`),
+            IsAllDay: false,
+            Location: selectedTimetableDetail.venue,
+            CategoryColor: '#1aaa55'
+        };
+
         try {
-            const newEvents = moduleTimetable.map(lesson => ({
-                userId, // Ensure userId is included
-                calendarId, // Ensure calendarId is included
-                Subject: `${selectedModule} ${lesson.lessonType}`,
-                Description: `Class No: ${lesson.classNo}`,
-                StartTime: new Date(`2024-08-12T${lesson.startTime}:00`), // Assuming classes start from 12th Aug 2024
-                EndTime: new Date(`2024-08-12T${lesson.endTime}:00`),
-                IsAllDay: false,
-                Location: lesson.venue,
-                CategoryColor: '#1aaa55'
-            }));
-            
-            console.log('Adding new events:', newEvents); // Log new events
-            
-            // Process events sequentially
-            for (const event of newEvents) {
-                try {
-                    await axios.post(`${baseURL}/events`, event);
-                } catch (error) {
-                    console.error('Error adding event:', event, error.response || error);
-                }
-            }
-            
-            // Reload events after adding
+            await axios.post(`${baseURL}/events`, newEvent);
             await loadEvents();
         } catch (error) {
-            console.error('Error in addModuleToCalendar:', error);
+            console.error('Error adding event:', error);
         }
     };
-    
-    
-    
 
     const handleActionBegin = async (args) => {
         if (args.requestType === 'eventCreate') {
             const eventData = args.addedRecords[0];
             const formattedData = {
                 userId,
-                calendarId, // Ensure calendarId is included
+                calendarId,
                 Subject: eventData.Subject,
                 Description: eventData.Description,
                 StartTime: eventData.StartTime,
                 EndTime: eventData.EndTime,
                 IsAllDay: eventData.IsAllDay,
                 Location: eventData.Location,
-                CategoryColor: eventData.CategoryColor || '#1aaa55' // Add a default color if none provided
+                CategoryColor: eventData.CategoryColor || '#1aaa55'
             };
             try {
                 console.log('Sending event data:', formattedData);
@@ -173,20 +156,20 @@ const CalendarPage = ({ userId }) => {
                 loadEvents();
             } catch (error) {
                 console.error('Error creating event:', error);
-                console.log('Error response:', error.response); // Log the full error response
+                console.log('Error response:', error.response);
             }
         } else if (args.requestType === 'eventChange') {
             const eventData = args.changedRecords[0];
             const formattedData = {
                 userId,
-                calendarId, // Ensure calendarId is included
+                calendarId,
                 Subject: eventData.Subject,
                 Description: eventData.Description,
                 StartTime: eventData.StartTime,
                 EndTime: eventData.EndTime,
                 IsAllDay: eventData.IsAllDay,
                 Location: eventData.Location,
-                CategoryColor: eventData.CategoryColor || '#1aaa55' // Add a default color if none provided
+                CategoryColor: eventData.CategoryColor || '#1aaa55'
             };
             try {
                 console.log(`Updating event with ID: ${eventData.Id}`);
@@ -194,7 +177,7 @@ const CalendarPage = ({ userId }) => {
                 loadEvents();
             } catch (error) {
                 console.error('Error updating event:', error);
-                console.log('Error response:', error.response); // Log the full error response
+                console.log('Error response:', error.response);
             }
         } else if (args.requestType === 'eventRemove') {
             const eventId = args.deletedRecords[0].Id;
@@ -204,7 +187,7 @@ const CalendarPage = ({ userId }) => {
                 loadEvents();
             } catch (error) {
                 console.error('Error deleting event:', error);
-                console.log('Error response:', error.response); // Log the full error response
+                console.log('Error response:', error.response);
             }
         }
     };
@@ -231,7 +214,7 @@ const CalendarPage = ({ userId }) => {
             loadEvents();
         } catch (error) {
             console.error('Error adding parsed events:', error);
-            console.log('Error response:', error.response); // Log the full error response
+            console.log('Error response:', error.response);
         }
     };
 
@@ -239,9 +222,9 @@ const CalendarPage = ({ userId }) => {
         <div className='scheduler-container'>
             <ErrorBoundary>
                 <h1>Calendar Page</h1>
-                {calendar ? ( // Check if calendar is not null
+                {calendar ? (
                     <div>
-                        <h2>{calendar.name}</h2> {/* Access calendar.name safely */}
+                        <h2>{calendar.name}</h2>
                         <DropDownListComponent
                             dataSource={modules}
                             fields={{ text: 'moduleCode', value: 'moduleCode' }}
@@ -272,9 +255,18 @@ const CalendarPage = ({ userId }) => {
                                 <h3>Module Timetable</h3>
                                 <ul>
                                     {moduleTimetable.map((lesson, index) => (
-                                        <li key={index}>{`${lesson.lessonType} ${lesson.classNo}: ${lesson.day} ${lesson.startTime} - ${lesson.endTime} at ${lesson.venue}`}</li>
+                                        <li key={index}>
+                                            <button onClick={() => handleTimetableDetailClick(lesson)}>
+                                                {`${lesson.lessonType} ${lesson.classNo}: ${lesson.day} ${lesson.startTime} - ${lesson.endTime} at ${lesson.venue}`}
+                                            </button>
+                                        </li>
                                     ))}
                                 </ul>
+                                {selectedTimetableDetail && (
+                                    <button onClick={addSelectedTimetableDetailToCalendar}>
+                                        Add Selected Timetable Detail to Calendar
+                                    </button>
+                                )}
                             </div>
                         )}
                     </div>

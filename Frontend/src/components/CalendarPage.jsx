@@ -28,6 +28,9 @@ const CalendarPage = ({ userId }) => {
     const { calendarId } = useParams();
     const [calendar, setCalendar] = useState(null);
     const [events, setEvents] = useState([]);
+    const [moduleCode, setModuleCode] = useState('');
+    const [icsFile, setIcsFile] = useState(null);
+    const [addIcsFile, setAddIcsFile] = useState(false);
     const scheduleRef = useRef(null);
 
     useEffect(() => {
@@ -109,7 +112,7 @@ const CalendarPage = ({ userId }) => {
             const eventData = args.deletedRecords[0];
             try {
                 console.log(`Deleting event with ID: ${eventData.Id}`);
-                await axios.delete(`${baseURL}/events/${eventData.Id}`);
+                await axios.delete(`/events/${eventData.Id}`);
                 loadEvents();
             } catch (error) {
                 console.error('Error deleting event:', error);
@@ -138,6 +141,35 @@ const CalendarPage = ({ userId }) => {
         } catch (error) {
             console.error('Error adding parsed events:', error);
         }
+    };
+
+    const handleModuleSearch = async () => {
+        try {
+            const response = await axios.get(`https://api.nusmods.com/v2/2023-2024/modules/${moduleCode}.json`);
+            const moduleData = response.data;
+            // Convert moduleData to your calendar's event format and add to the calendar
+            console.log('Module data:', moduleData);
+            // Example of converting moduleData to event
+            const moduleEvent = {
+                userId,
+                calendarId,
+                Subject: moduleData.title,
+                Description: moduleData.description,
+                StartTime: new Date(), // Set appropriate start time
+                EndTime: new Date(), // Set appropriate end time
+                IsAllDay: false,
+                Location: 'NUS',
+                CategoryColor: '#1aaa55'
+            };
+            await axios.post(`/events`, moduleEvent);
+            loadEvents();
+        } catch (error) {
+            console.error('Error fetching module data:', error);
+        }
+    };
+
+    const handleAddIcsFile = () => {
+        setAddIcsFile(!addIcsFile);
     };
 
     const editorHeaderTemplate = (props) => {
@@ -196,7 +228,16 @@ const CalendarPage = ({ userId }) => {
                 {calendar ? (
                     <div>
                         <h1>{calendar.name}</h1>
-                        <input type="file" accept=".ics" onChange={handleFileUpload} />
+                        <div>
+                            <input type="text" value={moduleCode} onChange={(e) => setModuleCode(e.target.value)} placeholder="Enter module code" />
+                            <button onClick={handleModuleSearch}>Search Module</button>
+                        </div>
+                        <div>
+                            <input type="file" accept=".ics" onChange={(e) => setIcsFile(e.target.files[0])} />
+                            <button onClick={handleAddIcsFile}>
+                                {addIcsFile ? 'Remove ICS File' : 'Add ICS File'}
+                            </button>
+                        </div>
                         <ScheduleComponent
                             height="550px"
                             ref={scheduleRef}

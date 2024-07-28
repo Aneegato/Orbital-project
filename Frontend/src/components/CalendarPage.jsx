@@ -108,12 +108,22 @@ const CalendarPage = ({ userId }) => {
                 Location: lesson.venue,
                 CategoryColor: '#1aaa55'
             }));
+            
             console.log('Adding new events:', newEvents); // Log new events
-            await Promise.all(newEvents.map(event => axios.post(`${baseURL}/events`, event)));
-            loadEvents();
+            
+            // Process events sequentially
+            for (const event of newEvents) {
+                try {
+                    await axios.post(`${baseURL}/events`, event);
+                } catch (error) {
+                    console.error('Error adding event:', event, error.response || error);
+                }
+            }
+            
+            // Reload events after adding
+            await loadEvents();
         } catch (error) {
-            console.error('Error adding module to calendar:', error);
-            console.log('Error response:', error.response); // Log the full error response
+            console.error('Error in addModuleToCalendar:', error);
         }
     };
 

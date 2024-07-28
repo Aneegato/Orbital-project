@@ -16,7 +16,6 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin like mobile apps, Postman, etc.
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -54,17 +53,19 @@ const calendarRoutes = require('./routes/calendarRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
+const moduleRoutes = require('./routes/moduleRoutes'); // New route for module data
 
 app.use('/calendars', calendarRoutes);
 app.use('/events', eventRoutes);
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
+app.use('/modules', moduleRoutes); // Use the new module route
 
 // Example route to set a cookie
 app.get('/set-cookie', (req, res) => {
   res.cookie('exampleCookie', 'cookieValue', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production', // Ensure this is true if SameSite=None
+    secure: process.env.NODE_ENV === 'production',
     sameSite: 'None',
   });
   res.send('Cookie set');

@@ -21,16 +21,14 @@ import ErrorBoundary from './ErrorBoundary';
 import './scheduler.css';
 import { parseICSFile } from '../utils/parseICS'; // Adjust the path as needed
 
-// Syncfusion license key
 registerLicense('Ngo9BigBOggjHTQxAR8/V1NCaF5cXmZCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdnWXlfd3VURmFdVk1+XUU=');
 
 const CalendarPage = ({ userId }) => {
     const { calendarId } = useParams();
     const [calendar, setCalendar] = useState(null);
     const [events, setEvents] = useState([]);
-    const [moduleCode, setModuleCode] = useState('');
-    const [icsFile, setIcsFile] = useState(null);
-    const [addIcsFile, setAddIcsFile] = useState(false);
+    const [modules, setModules] = useState([]);
+    const [selectedModule, setSelectedModule] = useState('');
     const scheduleRef = useRef(null);
 
     useEffect(() => {
@@ -48,6 +46,8 @@ const CalendarPage = ({ userId }) => {
 
         // Fetch events for this calendar
         loadEvents();
+        // Fetch module list
+        fetchModules();
     }, [calendarId]);
 
     const loadEvents = async () => {
@@ -66,6 +66,15 @@ const CalendarPage = ({ userId }) => {
             })));
         } catch (error) {
             console.error('Error loading events:', error);
+        }
+    };
+
+    const fetchModules = async () => {
+        try {
+            const response = await axios.get('https://api.nusmods.com/v2/2023-2024/moduleList.json');
+            setModules(response.data);
+        } catch (error) {
+            console.error('Error fetching modules:', error);
         }
     };
 
@@ -112,7 +121,7 @@ const CalendarPage = ({ userId }) => {
             const eventData = args.deletedRecords[0];
             try {
                 console.log(`Deleting event with ID: ${eventData.Id}`);
-                await axios.delete(`/events/${eventData.Id}`);
+                await axios.delete(`${baseURL}/events/${eventData.Id}`);
                 loadEvents();
             } catch (error) {
                 console.error('Error deleting event:', error);
@@ -125,31 +134,28 @@ const CalendarPage = ({ userId }) => {
         if (file) {
             const reader = new FileReader();
             reader.onload = (e) => {
-                const parsedEvents = parseICSFile(e.target.result, calendarId, userId);
-                addParsedEvents(parsedEvents);
+                const parsedEvents = parseICSFile(e.target.result);
+                setEvents(parsedEvents.map(event => ({
+                    ...event,
+                    Id: event.id,
+                    StartTime: new Date(event.startDate),
+                    EndTime: new Date(event.endDate)
+                })));
             };
             reader.readAsText(file);
         }
     };
 
-    const addParsedEvents = async (parsedEvents) => {
-        try {
-            for (const event of parsedEvents) {
-                await axios.post(`/events`, event);
-            }
-            loadEvents();
-        } catch (error) {
-            console.error('Error adding parsed events:', error);
-        }
-    };
-
     const handleModuleSearch = async () => {
+        if (!selectedModule) {
+            console.error('No module selected');
+            return;
+        }
         try {
-            const response = await axios.get(`https://api.nusmods.com/v2/2023-2024/modules/${moduleCode}.json`);
+            const response = await axios.get(`/modules/${selectedModule}`);
             const moduleData = response.data;
-            // Convert moduleData to your calendar's event format and add to the calendar
             console.log('Module data:', moduleData);
-            // Example of converting moduleData to event
+
             const moduleEvent = {
                 userId,
                 calendarId,
@@ -168,99 +174,46 @@ const CalendarPage = ({ userId }) => {
         }
     };
 
-    const handleAddIcsFile = () => {
-        setAddIcsFile(!addIcsFile);
-    };
-
-    const editorHeaderTemplate = (props) => {
-        return (
-            <div id="event-header">
-                {(props !== undefined) ? ((props.Subject) ? <div>{props.Subject}</div> : <div>Create New Event</div>) : <div></div>}
-            </div>
-        );
-    }
-
-    const editorTemplate = (props) => {
-        return ((props !== undefined) ?
-            <table className="custom-event-editor" style={{ width: '100%' }} cellPadding={5}>
-                <tbody>
-                    <tr>
-                        <td className="e-textlabel">Summary</td>
-                        <td colSpan={4}>
-                            <input id="Summary" className="e-field e-input" type="text" name="Subject" style={{ width: '100%' }} />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td className="e-textlabel">Color</td>
-                        <td colSpan={4}>
-                            <DropDownListComponent id="CategoryColor" placeholder='Choose color' data-name='CategoryColor' className="e-field" style={{ width: '100%' }}
-                                dataSource={['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#8B00FF']} />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td className="e-textlabel">From</td>
-                        <td colSpan={4}>
-                            <DateTimePickerComponent id="StartTime" format='dd/MM/yy hh:mm a' data-name="StartTime" value={new Date(props.startTime || props.StartTime)} className="e-field" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td className="e-textlabel">To</td><td colSpan={4}>
-                            <DateTimePickerComponent id="EndTime" format='dd/MM/yy hh:mm a' data-name="EndTime" value={new Date(props.endTime || props.EndTime)} className="e-field" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td className="e-textlabel">Description</td><td colSpan={4}>
-                            <textarea id="Description" className="e-field e-input" name="Description" rows={3} cols={50} style={{ width: '100%', height: '60px !important', resize: 'vertical' }}></textarea>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td className="e-textlabel">Location</td><td colSpan={4}>
-                            <input id="Location" className="e-field e-input" type="text" name="Location" style={{ width: '100%' }} />
-                        </td>
-                    </tr>
-                </tbody>
-            </table> : <div></div>);
-    }
-
     return (
-        <ErrorBoundary>
-            <div className="calendar-page">
-                {calendar ? (
+        <div>
+            <ErrorBoundary>
+                {calendar && (
                     <div>
                         <h1>{calendar.name}</h1>
-                        <div>
-                            <input type="text" value={moduleCode} onChange={(e) => setModuleCode(e.target.value)} placeholder="Enter module code" />
+                        <div className="dropdown">
+                            <DropDownListComponent
+                                id="modules"
+                                dataSource={modules}
+                                fields={{ text: 'moduleCode', value: 'moduleCode' }}
+                                placeholder="Select a module"
+                                change={(e) => setSelectedModule(e.value)}
+                            />
                             <button onClick={handleModuleSearch}>Search Module</button>
                         </div>
-                        <div>
-                            <input type="file" accept=".ics" onChange={(e) => setIcsFile(e.target.files[0])} />
-                            <button onClick={handleAddIcsFile}>
-                                {addIcsFile ? 'Remove ICS File' : 'Add ICS File'}
-                            </button>
+                        <div className="upload-section">
+                            <label htmlFor="file-upload" className="custom-file-upload">Upload ICS File</label>
+                            <input id="file-upload" type="file" onChange={handleFileUpload} />
                         </div>
                         <ScheduleComponent
-                            height="550px"
                             ref={scheduleRef}
+                            height="650px"
                             selectedDate={new Date()}
                             eventSettings={{ dataSource: events }}
                             actionBegin={handleActionBegin}
-                            editorTemplate={editorTemplate}
                         >
                             <ViewsDirective>
-                                <ViewDirective option="Day" />
-                                <ViewDirective option="Week" />
-                                <ViewDirective option="WorkWeek" />
-                                <ViewDirective option="Month" />
-                                <ViewDirective option="Agenda" />
+                                <ViewDirective option='Day' />
+                                <ViewDirective option='Week' />
+                                <ViewDirective option='WorkWeek' />
+                                <ViewDirective option='Month' />
+                                <ViewDirective option='Agenda' />
                             </ViewsDirective>
                             <Inject services={[Day, Week, WorkWeek, Month, Agenda, DragAndDrop, Resize]} />
                         </ScheduleComponent>
                     </div>
-                ) : (
-                    <p>Loading...</p>
                 )}
-            </div>
-        </ErrorBoundary>
+            </ErrorBoundary>
+        </div>
     );
 };
 

@@ -14,7 +14,6 @@ import {
     ViewsDirective,
     ViewDirective
 } from '@syncfusion/ej2-react-schedule';
-import { DateTimePickerComponent } from '@syncfusion/ej2-react-calendars';
 import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
 import { registerLicense } from '@syncfusion/ej2-base';
 import ErrorBoundary from './ErrorBoundary';
@@ -140,6 +139,8 @@ const CalendarPage = ({ userId }) => {
         } else if (args.requestType === 'eventChange') {
             const eventData = args.changedRecords[0];
             const formattedData = {
+                userId,
+                calendarId, // Ensure calendarId is included
                 Subject: eventData.Subject,
                 Description: eventData.Description,
                 StartTime: eventData.StartTime,
@@ -182,6 +183,8 @@ const CalendarPage = ({ userId }) => {
     const addParsedEvents = async (parsedEvents) => {
         try {
             for (const event of parsedEvents) {
+                event.userId = userId;
+                event.calendarId = calendarId;
                 await axios.post(`${baseURL}/events`, event);
             }
             loadEvents();
@@ -225,9 +228,11 @@ const CalendarPage = ({ userId }) => {
                         {moduleTimetable.length > 0 && (
                             <div>
                                 <h3>Module Timetable</h3>
-                                {moduleTimetable.map((lesson, index) => (
-                                    <p key={index}>{`${lesson.day}: ${lesson.lessonType} from ${lesson.startTime} to ${lesson.endTime} at ${lesson.venue}`}</p>
-                                ))}
+                                <ul>
+                                    {moduleTimetable.map((lesson, index) => (
+                                        <li key={index}>{`${lesson.lessonType} ${lesson.classNo}: ${lesson.day} ${lesson.startTime} - ${lesson.endTime} at ${lesson.venue}`}</li>
+                                    ))}
+                                </ul>
                             </div>
                         )}
                     </div>

@@ -52,6 +52,10 @@ function Navbar({ isLoggedIn, handleLogout, userName, propUserId }) {
     navigate('/');
   };
 
+  const handleModulesClick = () => {
+    navigate('/modules');
+  };
+
   return (
     <div className="navbar">
       <div className="navbar-brand" onClick={handleLogoClick} style={{ cursor: 'pointer' }}>
@@ -81,6 +85,9 @@ function Navbar({ isLoggedIn, handleLogout, userName, propUserId }) {
             <button onClick={handleNewCalendarsClick} className="btn btn-info" style={{ marginLeft: '10px' }}>
               Create New Calendar
             </button>
+            <button onClick={handleModulesClick} className="btn btn-info" style={{ marginLeft: '10px' }}>
+              Modules
+            </button>
             <button onClick={handleLogoutClick} className="btn btn-danger" style={{ marginLeft: '10px' }}>
               Logout
             </button>
@@ -92,6 +99,9 @@ function Navbar({ isLoggedIn, handleLogout, userName, propUserId }) {
             </button>
             <button onClick={handleSignupClick} className="btn btn-success">
               Register
+            </button>
+            <button onClick={handleModulesClick} className="btn btn-info" style={{ marginLeft: '10px' }}>
+              Modules
             </button>
           </>
         )}

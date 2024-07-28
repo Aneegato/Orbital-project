@@ -8,6 +8,8 @@ import LandingPage from './components/LandingPage';
 import ManageCalendars from './components/ManageCalendars';
 import CalendarPage from './components/CalendarPage';
 import EventPage from './components/EventPage';
+import ModulesList from './components/ModulesList';
+import ModuleDetails from './components/ModulesDetails';
 
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -50,12 +52,15 @@ function App() {
                 <Route path='/calendars/:calendarId' element={isLoggedIn ? <CalendarPage userId={userId} /> : <Navigate to="/login" />} />
                 <Route path='/manage-calendars' element={isLoggedIn ? <ManageCalendars userId={userId} setCalendarsForNavbar={setCalendarsForNavbar} /> : <Navigate to="/login" />} />
                 <Route path='/events/:eventId' element={isLoggedIn ? <EventPage userId={userId} /> : <Navigate to="/login" />} />
+                <Route path='/modules' element={<ModulesList />} />
+                <Route path='/modules/:moduleCode' element={<ModuleDetails />} />
             </Routes>
         </BrowserRouter>
     );
 }
 
 export default App;
+
 
 
 

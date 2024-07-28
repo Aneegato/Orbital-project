@@ -98,8 +98,8 @@ const CalendarPage = ({ userId }) => {
     const addModuleToCalendar = async () => {
         try {
             const newEvents = moduleTimetable.map(lesson => ({
-                userId,
-                calendarId,
+                userId, // Ensure userId is included
+                calendarId, // Ensure calendarId is included
                 Subject: `${selectedModule} ${lesson.lessonType}`,
                 Description: `Class No: ${lesson.classNo}`,
                 StartTime: new Date(`2024-08-12T${lesson.startTime}:00`), // Assuming classes start from 12th Aug 2024
@@ -108,6 +108,7 @@ const CalendarPage = ({ userId }) => {
                 Location: lesson.venue,
                 CategoryColor: '#1aaa55'
             }));
+            console.log('Adding new events:', newEvents); // Log new events
             await Promise.all(newEvents.map(event => axios.post(`${baseURL}/events`, event)));
             loadEvents();
         } catch (error) {
@@ -243,4 +244,3 @@ const CalendarPage = ({ userId }) => {
 };
 
 export default CalendarPage;
-

@@ -32,12 +32,13 @@ const CalendarPage = ({ userId }) => {
     const [selectedModule, setSelectedModule] = useState('');
     const [moduleTimetable, setModuleTimetable] = useState([]);
     const scheduleRef = useRef(null);
+    const baseURL = import.meta.env.VITE_APP_API_URL;
 
     useEffect(() => {
         console.log('Fetching calendar details for calendarId:', calendarId);
 
         // Fetch calendar details
-        axios.get(`/calendars/${calendarId}`)
+        axios.get(`${baseURL}/calendars/${calendarId}`)
             .then(response => {
                 console.log('Fetched calendar:', response.data);
                 setCalendar(response.data);
@@ -54,7 +55,7 @@ const CalendarPage = ({ userId }) => {
 
     const loadEvents = async () => {
         try {
-            const response = await axios.get(`/calendars/${calendarId}/events`);
+            const response = await axios.get(`${baseURL}/calendars/${calendarId}/events`);
             console.log('Fetched events:', response.data); // Log fetched events
             setEvents(response.data.map(event => ({
                 Id: event._id,
@@ -95,6 +96,26 @@ const CalendarPage = ({ userId }) => {
         fetchModuleTimetable(moduleCode);
     };
 
+    const addModuleToCalendar = async () => {
+        try {
+            const newEvents = moduleTimetable.map(lesson => ({
+                userId,
+                calendarId,
+                Subject: `${selectedModule} ${lesson.lessonType}`,
+                Description: `Class No: ${lesson.classNo}`,
+                StartTime: new Date(`2024-08-12T${lesson.startTime}:00`), // Assuming classes start from 12th Aug 2024
+                EndTime: new Date(`2024-08-12T${lesson.endTime}:00`),
+                IsAllDay: false,
+                Location: lesson.venue,
+                CategoryColor: '#1aaa55'
+            }));
+            await Promise.all(newEvents.map(event => axios.post(`${baseURL}/events`, event)));
+            loadEvents();
+        } catch (error) {
+            console.error('Error adding module to calendar:', error);
+        }
+    };
+
     const handleActionBegin = async (args) => {
         if (args.requestType === 'eventCreate') {
             const eventData = args.addedRecords[0];
@@ -111,7 +132,7 @@ const CalendarPage = ({ userId }) => {
             };
             try {
                 console.log('Sending event data:', formattedData);
-                await axios.post(`/events`, formattedData);
+                await axios.post(`${baseURL}/events`, formattedData);
                 loadEvents();
             } catch (error) {
                 console.error('Error creating event:', error);
@@ -129,7 +150,7 @@ const CalendarPage = ({ userId }) => {
             };
             try {
                 console.log(`Updating event with ID: ${eventData.Id}`);
-                await axios.put(`/events/${eventData.Id}`, formattedData);
+                await axios.put(`${baseURL}/events/${eventData.Id}`, formattedData);
                 loadEvents();
             } catch (error) {
                 console.error('Error updating event:', error);
@@ -138,11 +159,34 @@ const CalendarPage = ({ userId }) => {
             const eventId = args.deletedRecords[0].Id;
             try {
                 console.log(`Deleting event with ID: ${eventId}`);
-                await axios.delete(`/events/${eventId}`);
+                await axios.delete(`${baseURL}/events/${eventId}`);
                 loadEvents();
             } catch (error) {
                 console.error('Error deleting event:', error);
             }
+        }
+    };
+
+    const handleFileUpload = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const parsedEvents = parseICSFile(e.target.result, calendarId, userId);
+                addParsedEvents(parsedEvents);
+            };
+            reader.readAsText(file);
+        }
+    };
+
+    const addParsedEvents = async (parsedEvents) => {
+        try {
+            for (const event of parsedEvents) {
+                await axios.post(`${baseURL}/events`, event);
+            }
+            loadEvents();
+        } catch (error) {
+            console.error('Error adding parsed events:', error);
         }
     };
 
@@ -160,6 +204,8 @@ const CalendarPage = ({ userId }) => {
                             value={selectedModule}
                             change={handleModuleChange}
                         />
+                        <button onClick={addModuleToCalendar} disabled={!selectedModule}>Add Module to Calendar</button>
+                        <input type="file" accept=".ics" onChange={handleFileUpload} />
                         <ScheduleComponent
                             ref={scheduleRef}
                             height='650px'

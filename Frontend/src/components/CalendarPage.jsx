@@ -202,9 +202,10 @@ const CalendarPage = ({ userId }) => {
     return (
         <div className='scheduler-container'>
             <ErrorBoundary>
-                <h1>{calendar.name}</h1>
-                {calendar && (
+                <h1>Calendar Page</h1>
+                {calendar ? ( // Check if calendar is not null
                     <div>
+                        <h2>{calendar.name}</h2> {/* Access calendar.name safely */}
                         <DropDownListComponent
                             dataSource={modules}
                             fields={{ text: 'moduleCode', value: 'moduleCode' }}
@@ -241,6 +242,8 @@ const CalendarPage = ({ userId }) => {
                             </div>
                         )}
                     </div>
+                ) : (
+                    <div>Loading calendar details...</div>
                 )}
             </ErrorBoundary>
         </div>

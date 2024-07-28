@@ -21,3 +21,4 @@ export const getModuleDetails = async (year = '2024-2025', moduleCode) => {
     throw error;
   }
 };
+

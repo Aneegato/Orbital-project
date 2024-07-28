@@ -20,6 +20,7 @@ import { registerLicense } from '@syncfusion/ej2-base';
 import ErrorBoundary from './ErrorBoundary';
 import './scheduler.css';
 import { parseICSFile } from '../utils/parseICS'; // Adjust the path as needed
+import { getModules, getModuleDetails } from '../nusmodsService'; // Adjust the path as needed
 
 registerLicense('Ngo9BigBOggjHTQxAR8/V1NCaF5cXmZCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdnWXlfd3VURmFdVk1+XUU=');
 
@@ -29,6 +30,7 @@ const CalendarPage = ({ userId }) => {
     const [events, setEvents] = useState([]);
     const [modules, setModules] = useState([]);
     const [selectedModule, setSelectedModule] = useState('');
+    const [moduleTimetable, setModuleTimetable] = useState([]);
     const scheduleRef = useRef(null);
 
     useEffect(() => {
@@ -71,11 +73,26 @@ const CalendarPage = ({ userId }) => {
 
     const fetchModules = async () => {
         try {
-            const response = await axios.get('/modules/list');
-            setModules(response.data);
+            const modulesData = await getModules(); // Fetch module list for 2024-2025
+            setModules(modulesData);
         } catch (error) {
             console.error('Error fetching modules:', error);
         }
+    };
+
+    const fetchModuleTimetable = async (moduleCode) => {
+        try {
+            const moduleDetails = await getModuleDetails('2024-2025', moduleCode); // Fetch module details
+            setModuleTimetable(moduleDetails.semesterData[0].timetable); // Assuming semester 1
+        } catch (error) {
+            console.error('Error fetching module timetable:', error);
+        }
+    };
+
+    const handleModuleChange = (e) => {
+        const moduleCode = e.value;
+        setSelectedModule(moduleCode);
+        fetchModuleTimetable(moduleCode);
     };
 
     const handleActionBegin = async (args) => {
@@ -138,10 +155,10 @@ const CalendarPage = ({ userId }) => {
                         <h2>{calendar.name}</h2>
                         <DropDownListComponent
                             dataSource={modules}
-                            fields={{ text: 'ModuleCode', value: 'ModuleCode' }}
+                            fields={{ text: 'moduleCode', value: 'moduleCode' }}
                             placeholder="Select a module"
                             value={selectedModule}
-                            change={(e) => setSelectedModule(e.value)}
+                            change={handleModuleChange}
                         />
                         <ScheduleComponent
                             ref={scheduleRef}
@@ -159,6 +176,14 @@ const CalendarPage = ({ userId }) => {
                             </ViewsDirective>
                             <Inject services={[Day, Week, WorkWeek, Month, Agenda, DragAndDrop, Resize]} />
                         </ScheduleComponent>
+                        {moduleTimetable.length > 0 && (
+                            <div>
+                                <h3>Module Timetable</h3>
+                                {moduleTimetable.map((lesson, index) => (
+                                    <p key={index}>{`${lesson.day}: ${lesson.lessonType} from ${lesson.startTime} to ${lesson.endTime} at ${lesson.venue}`}</p>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 )}
             </ErrorBoundary>
@@ -167,3 +192,4 @@ const CalendarPage = ({ userId }) => {
 };
 
 export default CalendarPage;
+

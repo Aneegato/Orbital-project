@@ -71,7 +71,7 @@ const CalendarPage = ({ userId }) => {
 
     const fetchModules = async () => {
         try {
-            const response = await axios.get('https://api.nusmods.com/v2/2023-2024/moduleList.json');
+            const response = await axios.get('/modules/list');
             setModules(response.data);
         } catch (error) {
             console.error('Error fetching modules:', error);
@@ -118,10 +118,10 @@ const CalendarPage = ({ userId }) => {
                 console.error('Error updating event:', error);
             }
         } else if (args.requestType === 'eventRemove') {
-            const eventData = args.deletedRecords[0];
+            const eventId = args.deletedRecords[0].Id;
             try {
-                console.log(`Deleting event with ID: ${eventData.Id}`);
-                await axios.delete(`${baseURL}/events/${eventData.Id}`);
+                console.log(`Deleting event with ID: ${eventId}`);
+                await axios.delete(`/events/${eventId}`);
                 loadEvents();
             } catch (error) {
                 console.error('Error deleting event:', error);
@@ -129,74 +129,23 @@ const CalendarPage = ({ userId }) => {
         }
     };
 
-    const handleFileUpload = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const parsedEvents = parseICSFile(e.target.result);
-                setEvents(parsedEvents.map(event => ({
-                    ...event,
-                    Id: event.id,
-                    StartTime: new Date(event.startDate),
-                    EndTime: new Date(event.endDate)
-                })));
-            };
-            reader.readAsText(file);
-        }
-    };
-
-    const handleModuleSearch = async () => {
-        if (!selectedModule) {
-            console.error('No module selected');
-            return;
-        }
-        try {
-            const response = await axios.get(`/modules/${selectedModule}`);
-            const moduleData = response.data;
-            console.log('Module data:', moduleData);
-
-            const moduleEvent = {
-                userId,
-                calendarId,
-                Subject: moduleData.title,
-                Description: moduleData.description,
-                StartTime: new Date(), // Set appropriate start time
-                EndTime: new Date(), // Set appropriate end time
-                IsAllDay: false,
-                Location: 'NUS',
-                CategoryColor: '#1aaa55'
-            };
-            await axios.post(`/events`, moduleEvent);
-            loadEvents();
-        } catch (error) {
-            console.error('Error fetching module data:', error);
-        }
-    };
-
     return (
-        <div>
+        <div className='scheduler-container'>
             <ErrorBoundary>
+                <h1>Calendar Page</h1>
                 {calendar && (
                     <div>
-                        <h1>{calendar.name}</h1>
-                        <div className="dropdown">
-                            <DropDownListComponent
-                                id="modules"
-                                dataSource={modules}
-                                fields={{ text: 'moduleCode', value: 'moduleCode' }}
-                                placeholder="Select a module"
-                                change={(e) => setSelectedModule(e.value)}
-                            />
-                            <button onClick={handleModuleSearch}>Search Module</button>
-                        </div>
-                        <div className="upload-section">
-                            <label htmlFor="file-upload" className="custom-file-upload">Upload ICS File</label>
-                            <input id="file-upload" type="file" onChange={handleFileUpload} />
-                        </div>
+                        <h2>{calendar.name}</h2>
+                        <DropDownListComponent
+                            dataSource={modules}
+                            fields={{ text: 'ModuleCode', value: 'ModuleCode' }}
+                            placeholder="Select a module"
+                            value={selectedModule}
+                            change={(e) => setSelectedModule(e.value)}
+                        />
                         <ScheduleComponent
                             ref={scheduleRef}
-                            height="650px"
+                            height='650px'
                             selectedDate={new Date()}
                             eventSettings={{ dataSource: events }}
                             actionBegin={handleActionBegin}

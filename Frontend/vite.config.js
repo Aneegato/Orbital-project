@@ -17,6 +17,7 @@ export default defineConfig({
       '/api': {
         target: 'https://f38e-58-140-20-247.ngrok-free.app', // Ensure this is correct
         changeOrigin: true,
+        secure: false, // Add this line to ensure it works with ngrok
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },

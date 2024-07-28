@@ -9,7 +9,7 @@ const ModuleDetails = () => {
   useEffect(() => {
     const fetchModuleDetails = async () => {
       try {
-        const data = await getModuleDetails('2023-2024', moduleCode);
+        const data = await getModuleDetails('2024-2025', moduleCode);
         setModuleDetails(data);
       } catch (error) {
         console.error(`Error fetching details for module ${moduleCode}:`, error);

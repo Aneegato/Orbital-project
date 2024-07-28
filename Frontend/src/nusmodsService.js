@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const BASE_URL = 'https://api.nusmods.com/v2';
 
-export const getModules = async (year = '2023-2024') => {
+export const getModules = async (year = '2024-2025') => {
   try {
     const response = await axios.get(`${BASE_URL}/${year}/moduleInfo.json`);
     return response.data;
@@ -12,7 +12,7 @@ export const getModules = async (year = '2023-2024') => {
   }
 };
 
-export const getModuleDetails = async (year = '2023-2024', moduleCode) => {
+export const getModuleDetails = async (year = '2024-2025', moduleCode) => {
   try {
     const response = await axios.get(`${BASE_URL}/${year}/modules/${moduleCode}.json`);
     return response.data;

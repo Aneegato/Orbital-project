@@ -113,6 +113,7 @@ const CalendarPage = ({ userId }) => {
             loadEvents();
         } catch (error) {
             console.error('Error adding module to calendar:', error);
+            console.log('Error response:', error.response); // Log the full error response
         }
     };
 
@@ -136,6 +137,7 @@ const CalendarPage = ({ userId }) => {
                 loadEvents();
             } catch (error) {
                 console.error('Error creating event:', error);
+                console.log('Error response:', error.response); // Log the full error response
             }
         } else if (args.requestType === 'eventChange') {
             const eventData = args.changedRecords[0];
@@ -156,6 +158,7 @@ const CalendarPage = ({ userId }) => {
                 loadEvents();
             } catch (error) {
                 console.error('Error updating event:', error);
+                console.log('Error response:', error.response); // Log the full error response
             }
         } else if (args.requestType === 'eventRemove') {
             const eventId = args.deletedRecords[0].Id;
@@ -165,6 +168,7 @@ const CalendarPage = ({ userId }) => {
                 loadEvents();
             } catch (error) {
                 console.error('Error deleting event:', error);
+                console.log('Error response:', error.response); // Log the full error response
             }
         }
     };
@@ -191,16 +195,16 @@ const CalendarPage = ({ userId }) => {
             loadEvents();
         } catch (error) {
             console.error('Error adding parsed events:', error);
+            console.log('Error response:', error.response); // Log the full error response
         }
     };
 
     return (
         <div className='scheduler-container'>
             <ErrorBoundary>
-                <h1>Calendar Page</h1>
+                <h1>{calendar.name}</h1>
                 {calendar && (
                     <div>
-                        <h2>{calendar.name}</h2>
                         <DropDownListComponent
                             dataSource={modules}
                             fields={{ text: 'moduleCode', value: 'moduleCode' }}
@@ -212,7 +216,7 @@ const CalendarPage = ({ userId }) => {
                         <input type="file" accept=".ics" onChange={handleFileUpload} />
                         <ScheduleComponent
                             ref={scheduleRef}
-                            height='650px'
+                            height="550px"
                             selectedDate={new Date()}
                             eventSettings={{ dataSource: events }}
                             actionBegin={handleActionBegin}

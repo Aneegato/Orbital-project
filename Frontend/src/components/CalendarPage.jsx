@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from '../axiosConfig';
-import Scheduler from './Scheduler';
 import {
     ScheduleComponent,
     Day,
@@ -87,7 +86,7 @@ const CalendarPage = ({ userId }) => {
             console.error('Error fetching modules:', error);
         }
     };
-    
+
     const fetchModuleTimetable = async (moduleCode) => {
         try {
             const moduleDetails = await getModuleDetails('2024-2025', moduleCode); // Fetch module details
@@ -111,6 +110,36 @@ const CalendarPage = ({ userId }) => {
 
     const handleTimetableDetailClick = (lesson) => {
         setSelectedTimetableDetail(lesson);
+    };
+
+    const addModuleToCalendar = async () => {
+        try {
+            const newEvents = moduleTimetable.map(lesson => ({
+                userId, // Ensure userId is included
+                calendarId, // Ensure calendarId is included
+                Subject: `${selectedModule} ${lesson.lessonType}`,
+                Description: `Class No: ${lesson.classNo}`,
+                StartTime: new Date(`2024-08-12T${lesson.startTime}:00`), // Assuming classes start from 12th Aug 2024
+                EndTime: new Date(`2024-08-12T${lesson.endTime}:00`),
+                IsAllDay: false,
+                Location: lesson.venue,
+                CategoryColor: '#1aaa55'
+            }));
+
+            console.log('Adding new events:', newEvents); // Log new events
+
+            for (const event of newEvents) {
+                try {
+                    await axios.post(`${baseURL}/events`, event);
+                } catch (error) {
+                    console.error('Error adding event:', event, error.response || error);
+                }
+            }
+
+            await loadEvents();
+        } catch (error) {
+            console.error('Error in addModuleToCalendar:', error);
+        }
     };
 
     const addSelectedTimetableDetailToCalendar = async () => {

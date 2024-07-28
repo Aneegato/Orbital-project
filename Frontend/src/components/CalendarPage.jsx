@@ -74,12 +74,23 @@ const CalendarPage = ({ userId }) => {
     const fetchModules = async () => {
         try {
             const modulesData = await getModules(); // Fetch module list for 2024-2025
+    
+            // Log the fetched modules data to inspect its structure
+            console.log('Fetched modules data:', modulesData);
+    
+            // Ensure modulesData is defined and an array (or the expected type)
+            if (!Array.isArray(modulesData) || modulesData.length === 0) {
+                throw new Error('No modules data available or invalid data structure');
+            }
+    
+            // Set the modules state with the fetched data
             setModules(modulesData);
         } catch (error) {
             console.error('Error fetching modules:', error);
         }
     };
-
+    
+    
     const fetchModuleTimetable = async (moduleCode) => {
         try {
             const moduleDetails = await getModuleDetails('2024-2025', moduleCode); // Fetch module details
@@ -99,6 +110,7 @@ const CalendarPage = ({ userId }) => {
         }
     };
     
+    
 
     const handleModuleChange = (e) => {
         const moduleCode = e.value;
@@ -109,11 +121,19 @@ const CalendarPage = ({ userId }) => {
     const addModuleToCalendar = async () => {
         try {
             // Fetch module timetable (ensure it is done correctly)
-            const moduleTimetable = await fetchModuleTimetable(selectedModule);
+            await fetchModuleTimetable(selectedModule);
+    
+            if (!moduleTimetable || moduleTimetable.length === 0) {
+                console.error('Module timetable is empty or not set');
+                return;
+            }
     
             const newEvents = moduleTimetable.map(lesson => {
                 const startTime = `2024-08-12T${lesson.startTime}:00`;
                 const endTime = `2024-08-12T${lesson.endTime}:00`;
+    
+                // Log lesson details to debug
+                console.log('Processing lesson:', lesson);
     
                 return {
                     userId, // Ensure userId is included
@@ -133,6 +153,8 @@ const CalendarPage = ({ userId }) => {
             // Process events sequentially
             for (const event of newEvents) {
                 try {
+                    // Log event details before sending the request
+                    console.log('Adding event:', event);
                     await axios.post(`${baseURL}/events`, event);
                 } catch (error) {
                     console.error('Error adding event:', event, error.response || error);
@@ -145,6 +167,8 @@ const CalendarPage = ({ userId }) => {
             console.error('Error in addModuleToCalendar:', error);
         }
     };
+    
+    
     
 
     const handleActionBegin = async (args) => {

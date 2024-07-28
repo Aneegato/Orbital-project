@@ -71,7 +71,7 @@ function Navbar({ isLoggedIn, handleLogout, userName, propUserId }) {
               <ul className="dropdown-menu" aria-labelledby="calendarsDropdown">
                 {userCalendars.map(calendar => (
                   <li key={calendar._id}>
-                    <button className="dropdown-item" onClick={() => navigate('/calendars/${calendar._id}')}>
+                    <button className="dropdown-item" onClick={() => navigate(`/calendars/${calendar._id}`)}>
                       {calendar.name}
                     </button>
                   </li>

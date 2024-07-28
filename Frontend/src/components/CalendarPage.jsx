@@ -94,11 +94,22 @@ const CalendarPage = ({ userId }) => {
     const fetchModuleTimetable = async (moduleCode) => {
         try {
             const moduleDetails = await getModuleDetails('2024-2025', moduleCode); // Fetch module details
-            setModuleTimetable(moduleDetails.semesterData[0].timetable); // Assuming semester 1
+            
+            // Log the fetched module details to inspect its structure
+            console.log('Fetched module details:', moduleDetails);
+    
+            // Ensure semesterData is defined and has at least one element
+            if (!moduleDetails.semesterData || moduleDetails.semesterData.length === 0) {
+                throw new Error('No semester data available for this module');
+            }
+    
+            // Assuming semester 1 (first element in the semesterData array)
+            setModuleTimetable(moduleDetails.semesterData[0].timetable);
         } catch (error) {
             console.error('Error fetching module timetable:', error);
         }
     };
+    
     
 
     const handleModuleChange = (e) => {
@@ -109,28 +120,20 @@ const CalendarPage = ({ userId }) => {
 
     const addModuleToCalendar = async () => {
         try {
-            // Fetch module timetable (ensure it is done correctly)
-            const moduleTimetable = await fetchModuleTimetable(selectedModule);
-    
-            const newEvents = moduleTimetable.map(lesson => {
-                const startTime = `2024-08-12T${lesson.startTime}:00`;
-                const endTime = `2024-08-12T${lesson.endTime}:00`;
-    
-                return {
-                    userId, // Ensure userId is included
-                    calendarId, // Ensure calendarId is included
-                    Subject: `${selectedModule} ${lesson.lessonType}`,
-                    Description: `Class No: ${lesson.classNo}`,
-                    StartTime: new Date(startTime), // Correct date formatting
-                    EndTime: new Date(endTime),
-                    IsAllDay: false,
-                    Location: lesson.venue,
-                    CategoryColor: '#1aaa55'
-                };
-            });
-    
+            const newEvents = moduleTimetable.map(lesson => ({
+                userId, // Ensure userId is included
+                calendarId, // Ensure calendarId is included
+                Subject: `${selectedModule} ${lesson.lessonType}`,
+                Description: `Class No: ${lesson.classNo}`,
+                StartTime: new Date(`2024-08-12T${lesson.startTime}:00`), // Assuming classes start from 12th Aug 2024
+                EndTime: new Date(`2024-08-12T${lesson.endTime}:00`),
+                IsAllDay: false,
+                Location: lesson.venue,
+                CategoryColor: '#1aaa55'
+            }));
+            
             console.log('Adding new events:', newEvents); // Log new events
-    
+            
             // Process events sequentially
             for (const event of newEvents) {
                 try {
@@ -139,14 +142,13 @@ const CalendarPage = ({ userId }) => {
                     console.error('Error adding event:', event, error.response || error);
                 }
             }
-    
+            
             // Reload events after adding
             await loadEvents();
         } catch (error) {
             console.error('Error in addModuleToCalendar:', error);
         }
     };
-    
     
     
     
@@ -236,9 +238,10 @@ const CalendarPage = ({ userId }) => {
     return (
         <div className='scheduler-container'>
             <ErrorBoundary>
-                <h1>{calendar.name}</h1>
+                <h1>Calendar Page</h1>
                 {calendar ? ( // Check if calendar is not null
-                    <div>{/* Access calendar.name safely */}
+                    <div>
+                        <h2>{calendar.name}</h2> {/* Access calendar.name safely */}
                         <DropDownListComponent
                             dataSource={modules}
                             fields={{ text: 'moduleCode', value: 'moduleCode' }}

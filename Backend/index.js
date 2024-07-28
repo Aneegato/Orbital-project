@@ -16,7 +16,8 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+    // Allow requests with no origin like mobile apps, Postman, etc.
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -58,6 +59,16 @@ app.use('/calendars', calendarRoutes);
 app.use('/events', eventRoutes);
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
+
+// Example route to set a cookie
+app.get('/set-cookie', (req, res) => {
+  res.cookie('exampleCookie', 'cookieValue', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production', // Ensure this is true if SameSite=None
+    sameSite: 'None',
+  });
+  res.send('Cookie set');
+});
 
 // Default route
 app.get('/', (req, res) => {
